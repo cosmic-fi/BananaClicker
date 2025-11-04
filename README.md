@@ -1,4 +1,8 @@
 
+<a href="https://bananaclicker.cosmicfi.dev">
+<img width="100%" height="auto" alt="og-image" src="https://github.com/user-attachments/assets/0298c04c-bfc8-470b-af90-dbfd865f7406" />
+</a>
+
 # Banana Clicker 🍌
 
 **Banana Clicker** is a fun, browser-based idle clicker game where you click bananas, earn banana points, unlock upgrades, and grow your banana clicks! Built with **Svelte** and vanilla JavaScript, this game is lightweight, responsive, and easy to play on any modern web browser.
