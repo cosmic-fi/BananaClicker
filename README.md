@@ -29,8 +29,8 @@ To run the project locally:
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/yourusername/banana-clicker.git
-cd banana-clicker
+git clone https://github.com/yourusername/BananaClicker.git
+cd BananaClicker
 ```
 
 2. **Install dependencies:**
@@ -61,7 +61,7 @@ npm run dev
 ## Project Structure
 
 ```
-banana-clicker/
+BananaClicker/
 │
 ├─ public/
 │   ├─ build/          # Compiled JS/CSS bundle
