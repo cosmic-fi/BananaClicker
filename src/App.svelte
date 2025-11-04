@@ -314,7 +314,7 @@
 	main {
 		font-family: "Comic Neue", monospace;
 		background: linear-gradient(to right, #fff8d6, #fffbe8, #fff8d6);
-		min-height: 100vh;
+		height: 100%;
 		width: 550px;
 		display: flex;
 		flex-direction: column;
