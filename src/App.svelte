@@ -76,8 +76,8 @@
 			let newBananasPerClick = data.bananasPerClick;
 			let newAutoClickPower = data.autoClickPower;
 
-			if (upgrade.label !== "Autoclicker") newBananasPerClick += upgrade.value;
-			else newAutoClickPower += upgrade.value;
+			if (upgrade.type === "click") newBananasPerClick += upgrade.value;
+			else if (upgrade.type === "auto") newAutoClickPower += upgrade.value;
 
 			const updatedUpgrades = data.upgrades
 				.filter(u => u.label !== upgrade.label)

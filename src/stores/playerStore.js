@@ -2,16 +2,17 @@ import { writable } from 'svelte/store';
 
 // Default upgrades list
 const defaultUpgrades = [
-  { name: "+1 per click", cost: 10, value: 1, label: "+1 per click" },
-  { name: "+5 per click", cost: 10, value: 5, label: "+5 per click" },
-  { name: "+10 per click", cost: 100, value: 10, label: "+10 per click" },
-  { name: "+50 per click", cost: 1000, value: 50, label: "+50 per click" },
-  { name: "+100 per click", cost: 5000, value: 100, label: "+100 per click" },
-  { name: "+500 per click", cost: 20000, value: 500, label: "+500 per click" },
-  { name: "+1k per click", cost: 35000, value: 1000, label: "+1k per click" },
-  { name: "+5k per click", cost: 50000, value: 5000, label: "+5k per click" },
-  { name: "+10k per click", cost: 1000000, value: 10000, label: "+10k per click" },
-  { name: "Auto Clicker +50k", cost: 20, value: 50000, label: "Autoclicker" }
+  { name: "+1 per click", cost: 10, value: 1, label: "+1 per click", type: "click" },
+  { name: "+5 per click", cost: 10, value: 5, label: "+5 per click", type: "click" },
+  { name: "+10 per click", cost: 100, value: 10, label: "+10 per click", type: "click" },
+  { name: "+50 per click", cost: 1000, value: 50, label: "+50 per click", type: "click" },
+  { name: "+100 per click", cost: 5000, value: 100, label: "+100 per click", type: "click" },
+  { name: "+500 per click", cost: 20000, value: 500, label: "+500 per click", type: "click" },
+  { name: "+1k per click", cost: 35000, value: 1000, label: "+1k per click", type: "click" },
+  { name: "+5k per click", cost: 50000, value: 5000, label: "+5k per click", type: "click" },
+  { name: "+10k per click", cost: 1000000, value: 10000, label: "+10k per click", type: "click" },
+  { name: "Auto Clicker +50k", cost: 2000000, value: 50000, label: "Autoclicker", type: "auto" },
+  { name: "OP Auto Clicker +300M", cost: 1000000000000, value: 300000000, label: "OP utoclicker", type: "auto" }
 ];
 
 // Default player data
