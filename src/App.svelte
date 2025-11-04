@@ -76,24 +76,37 @@
 			let newBananasPerClick = data.bananasPerClick;
 			let newAutoClickPower = data.autoClickPower;
 
-			if (upgrade.type === "click") newBananasPerClick += upgrade.value;
-			else if (upgrade.type === "auto") newAutoClickPower += upgrade.value;
+			// Increase effect based on type
+			if (upgrade.type === "click") {
+			newBananasPerClick += upgrade.value;          // Increase clicks
+			} else if (upgrade.type === "auto") {
+			newAutoClickPower += upgrade.value;          // Increase auto-clicker
+			}
+
+			// Scale the upgrade for next purchase
+			const scaledUpgrade = {
+			label: upgrade.label,
+			cost: Math.floor(upgrade.cost * 1.25),       // Nerfed cost scaling
+			value: Math.floor(upgrade.value * 1.1)       // Increase upgrade power 10% per purchase
+			};
 
 			const updatedUpgrades = data.upgrades
-				.filter(u => u.label !== upgrade.label)
-				.concat({ label: upgrade.label, cost: Math.floor(upgrade.cost * 1.5) });
+			.filter(u => u.label !== upgrade.label)
+			.concat(scaledUpgrade);
 
+			// Play sound effect
 			if (data.soundFX) upgradeSound.cloneNode().play();
 
 			return {
-				...data,
-				bananas: newBananas,
-				bananasPerClick: newBananasPerClick,
-				autoClickPower: newAutoClickPower,
-				upgrades: updatedUpgrades
+			...data,
+			bananas: newBananas,
+			bananasPerClick: newBananasPerClick,
+			autoClickPower: newAutoClickPower,
+			upgrades: updatedUpgrades
 			};
 		});
 	}
+
 
 	// --- Toggle Sound / Music ---
 	function toggleSoundFX(value) {
@@ -195,6 +208,7 @@
 		</button>
 	</div>
 
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div class="game-area">
 		<span class="score-count">
 			<img src="./banana.png" alt="🍌" draggable="false" style="width:30px; height:auto; vertical-align: middle; margin-right: 5px;" />	 
@@ -203,6 +217,7 @@
 		<!-- Central banana -->
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<div bind:this={bananaElement} class="banana-center" on:click={clickBanana}>
 			<img src="./bananaman.png" alt="🍌" draggable="false" />
 		</div>

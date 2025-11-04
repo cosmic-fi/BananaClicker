@@ -11,8 +11,8 @@ const defaultUpgrades = [
   { name: "+1k per click", cost: 35000, value: 1000, label: "+1k per click", type: "click" },
   { name: "+5k per click", cost: 50000, value: 5000, label: "+5k per click", type: "click" },
   { name: "+10k per click", cost: 1000000, value: 10000, label: "+10k per click", type: "click" },
-  { name: "Auto Clicker +50k", cost: 2000000, value: 50000, label: "Autoclicker", type: "auto" },
-  { name: "OP Auto Clicker +300M", cost: 1000000000000, value: 300000000, label: "OP utoclicker", type: "auto" }
+  { name: "Auto Clicker +50k", cost: 2000000, value: 50000, label: "Autoclicker-50k", type: "auto" },
+  { name: "OP Auto Clicker +100M", cost: 1000000000, value: 300000000, label: "Autoclicker-OP", type: "auto" }
 ];
 
 // Default player data
