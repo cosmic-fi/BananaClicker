@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bananaclicker.cosmicfi.dev/sitemap.xml
