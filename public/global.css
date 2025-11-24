@@ -11,10 +11,11 @@ body {
 	box-sizing: border-box;
 	font-family: 'Comic Neue', sans-serif;
 	overflow: hidden;
+	overflow-y: auto;
 	display: flex;
 	justify-content: center;
 	width: 100vw;
-	height: 100vh;
+	height: 100%;
 	background-image:
 		linear-gradient(rgba(255, 255, 255, 0.884), rgba(255, 255, 255, 0.137)), /* fade overlay */
 		url('./pattern.png');
