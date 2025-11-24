@@ -1,52 +1,88 @@
+// ./stores/playerStore.js
 import { writable } from 'svelte/store';
+import SHA256 from 'crypto-js/sha256'; // install via `npm install crypto-js`
 
 // Default upgrades list
 const defaultUpgrades = [
   { name: "+1 per click", cost: 10, value: 1, label: "+1 per click", type: "click" },
-  { name: "+5 per click", cost: 10, value: 5, label: "+5 per click", type: "click" },
-  { name: "+10 per click", cost: 100, value: 10, label: "+10 per click", type: "click" },
+  { name: "+5 per click", cost: 75, value: 5, label: "+5 per click", type: "click" },
+  { name: "+10 per click", cost: 250, value: 10, label: "+10 per click", type: "click" },
   { name: "+50 per click", cost: 1000, value: 50, label: "+50 per click", type: "click" },
   { name: "+100 per click", cost: 5000, value: 100, label: "+100 per click", type: "click" },
-  { name: "+500 per click", cost: 20000, value: 500, label: "+500 per click", type: "click" },
-  { name: "+1k per click", cost: 35000, value: 1000, label: "+1k per click", type: "click" },
-  { name: "+5k per click", cost: 50000, value: 5000, label: "+5k per click", type: "click" },
-  { name: "+10k per click", cost: 1000000, value: 10000, label: "+10k per click", type: "click" },
-  { name: "Auto Clicker +50k", cost: 2000000, value: 50000, label: "Autoclicker-50k", type: "auto" },
-  { name: "OP Auto Clicker +100M", cost: 1000000000, value: 300000000, label: "Autoclicker-OP", type: "auto" }
+
+  { name: "Auto Clicker +1k/s", cost: 24000, value: 1000, label: "Auto Clicker", type: "auto" },
+  { name: "Super Auto Clicker +10k/s", cost: 150000, value: 10000, label: "Super Auto Clicker", type: "auto" },
+  { name: "Golden Auto Clicker +100k/s", cost: 750000, value: 100000, label: "Golden Auto Clicker", type: "auto" },
+
+  { name: "Mega Clicks +1M per click", cost: 5000000, value: 1000000, label: "Mega Clicks", type: "click" },
+  { name: "Banana Factory +5M/s", cost: 20000000, value: 5000000, label: "Banana Factory", type: "auto" },
+
+  { name: "Banana Magnet (x2 Clicks)", cost: 5000000, value: 2, label: "Banana Magnet", type: "multiplier" },
+  { name: "Golden Clicks (x5 Clicks)", cost: 125000000, value: 5, label: "Golden Clicks", type: "multiplier" },
+
+  { name: "Ultra Auto Clicker +50M/s", cost: 750000000, value: 50000000, label: "Ultra Auto Clicker", type: "auto" },
+  { name: "OP Banana God +300M/s", cost: 1500000000, value: 300000000, label: "Banana God", type: "auto" },
 ];
 
 // Default player data
 const defaultData = {
   bananas: 0,
   bananasPerClick: 1,
+  baseBananasPerClick: 1,
+  baseAutoClickPower: 0,
+  multiplier: 0,
   autoClickPower: 0,
   soundFX: true,
   music: true,
-  upgrades: [] // will store bought upgrades as { label, cost }
+  upgrades: [],
+  activeEffects: {}
 };
 
-// Helper to load from localStorage
+// --- Hash helpers ---
+function hashData(data) {
+  return SHA256(JSON.stringify(data)).toString();
+}
+
 function loadData() {
   try {
-    const data = localStorage.getItem('bananaClicker');
-    return data ? JSON.parse(data) : defaultData;
+    const raw = localStorage.getItem('bananaClicker');
+    if (!raw) return defaultData;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed.data || !parsed.hash) return defaultData;
+
+    const checkHash = hashData(parsed.data);
+    if (checkHash !== parsed.hash) {
+      console.warn('Player data tampered! Resetting.');
+      return defaultData;
+    }
+
+    return parsed.data;
   } catch (e) {
     console.error("Failed to load player data:", e);
     return defaultData;
   }
 }
 
-// Writable store
-export const playerData = writable(loadData());
-
-// Auto-save to localStorage
-playerData.subscribe(value => {
+function saveData(data) {
   try {
-    localStorage.setItem('bananaClicker', JSON.stringify(value));
+    const toSave = {
+      data,
+      hash: hashData(data)
+    };
+    localStorage.setItem('bananaClicker', JSON.stringify(toSave));
   } catch (e) {
     console.error("Failed to save player data:", e);
   }
+}
+
+// --- Writable store ---
+export const playerData = writable(loadData());
+
+// Auto-save whenever data changes
+playerData.subscribe(data => {
+  saveData(data);
 });
 
-// Export default upgrades for your component to use
+// Export default upgrades for your component
 export const upgradesList = defaultUpgrades;

@@ -3,13 +3,18 @@
 	import { playerData, upgradesList } from './stores/playerStore';
 	import  pkg from '../package.json';
 
-	const version = pkg.version
+	const version = pkg.version;
+
+	console.log(`%c [🛡️ Banana Guard]`, 'color: red;font-size:20px', ': Running');
+	console.log(`%c Banana Version: ${version}`, 'color: yellow;font-size:17px');
 
 	let particleId = 0;
 	let particles = [];
 	let isSettingsOpen = false;
 	let isUpgradeOpen = false;
 	let bananaElement;
+
+	let multiplier = 0;
 
 	let bananaParticles = [
 		'./bananaParticles/particle1.svg',
@@ -32,7 +37,13 @@
 		autoClickPower, 
 		soundFX, 
 		music, 
-		upgrades;
+		upgrades,
+		activeEffects;
+
+	$: mergedUpgrades = upgradesList.map(u => {
+		const owned = upgrades?.find(o => o.label === u.label);
+		return owned ? { ...u, cost: owned.cost } : u;
+	});
 
 	playerData.subscribe(data => {
 		bananas = data.bananas;
@@ -41,10 +52,11 @@
 		soundFX = data.soundFX;
 		music = data.music;
 
-		upgrades = upgradesList.map(u => {
-			const saved = data.upgrades.find(s => s.label === u.label);
-			return saved ? { ...u, cost: saved.cost } : u;
-		});
+		multiplier = data.multiplier ?? 1;
+
+		// Avoid updating the store here
+		upgrades = data.upgrades;
+		activeEffects = data.activeEffects;
 	});
 
 	// Play/pause music
@@ -55,9 +67,13 @@
 
 	// --- Click Banana ---
 	function clickBanana(event) {
+		console.log('ahhh');
 		playerData.update(data => {
-			const newBananas = data.bananas + data.bananasPerClick;
 
+			console.log(data.bananasPerClick)
+			const amountGained = data.bananasPerClick * (data.multiplier || 1);
+			const newBananas = data.bananas + amountGained;
+			
 			spawnParticles(event, 5, data.bananasPerClick);
 			animateClick();
 
@@ -65,48 +81,54 @@
 
 			return { ...data, bananas: newBananas };
 		});
+
+		console.log($playerData);
 	}
 
 	// --- Buy Upgrade ---
 	function buyUpgrade(upgrade) {
 		playerData.update(data => {
+			// Not enough bananas → ignore
 			if (data.bananas < upgrade.cost) return data;
 
-			let newBananas = data.bananas - upgrade.cost;
-			let newBananasPerClick = data.bananasPerClick;
-			let newAutoClickPower = data.autoClickPower;
+			let newData = { ...data };
 
-			// Increase effect based on type
-			if (upgrade.type === "click") {
-			newBananasPerClick += upgrade.value;          // Increase clicks
-			} else if (upgrade.type === "auto") {
-			newAutoClickPower += upgrade.value;          // Increase auto-clicker
+			// Deduct cost
+			newData.bananas -= upgrade.cost;
+
+			// Increase cost by 25% after purchase
+			const newCost = Math.ceil(upgrade.cost * 1.25);
+
+			// Update upgrade in data.upgrades array
+			const upIndex = newData.upgrades.findIndex(u => u.label === upgrade.label);
+			if (upIndex === -1) {
+				newData.upgrades.push({ label: upgrade.label, cost: newCost });
+			} else {
+				newData.upgrades[upIndex].cost = newCost;
 			}
 
-			// Scale the upgrade for next purchase
-			const scaledUpgrade = {
-			label: upgrade.label,
-			cost: Math.floor(upgrade.cost * 1.25),       // Nerfed cost scaling
-			value: Math.floor(upgrade.value * 1.1)       // Increase upgrade power 10% per purchase
-			};
+			// Apply upgrade effect
+			switch (upgrade.type) {
+				case 'click':
+					newData.bananasPerClick = (newData.bananasPerClick || 0) + upgrade.value;
+					break;
+				case 'auto':
+					newData.autoClickPower = (newData.autoClickPower || 0) + upgrade.value;
+					break;
+				case 'multiplier':
+					newData.multiplier = (newData.multiplier || 0) + upgrade.value;
+					break;
+				case 'special':
+					triggerSpecialEffect(upgrade.label);
+					break;
+			}
 
-			const updatedUpgrades = data.upgrades
-			.filter(u => u.label !== upgrade.label)
-			.concat(scaledUpgrade);
-
-			// Play sound effect
+			// Play upgrade sound
 			if (data.soundFX) upgradeSound.cloneNode().play();
 
-			return {
-			...data,
-			bananas: newBananas,
-			bananasPerClick: newBananasPerClick,
-			autoClickPower: newAutoClickPower,
-			upgrades: updatedUpgrades
-			};
+			return newData;
 		});
 	}
-
 
 	// --- Toggle Sound / Music ---
 	function toggleSoundFX(value) {
@@ -184,18 +206,47 @@
 	}
 	animate();
 
-	// --- Number Formatting ---
-	function formatNumber(num) {
-		const suffixes = ['', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp', 'Oc'];
-		let i = 0;
-		while (num >= 1000 && i < suffixes.length - 1) {
-			num /= 1000;
-			i++;
+	function triggerSpecialEffect(label) {
+		if (label === "Banana Rain") {
+			for (let i = 0; i < 100; i++) {
+				spawnParticles({
+					clientX: Math.random() * window.innerWidth,
+					clientY: Math.random() * window.innerHeight
+				}, 1, 1000);
+			}
+		} else if (label === "Banana Universe") {
+			document.body.style.transition = "background 1s ease";
+			document.body.style.background = "linear-gradient(135deg, gold, orange, yellow)";
+			setTimeout(() => document.body.style.background = "", 10000)
 		}
-		return num % 1 === 0 ? num + suffixes[i] : num.toFixed(2).replace(/\.00$/, '') + suffixes[i];
+	}
+
+	// --- Number Formatting ---
+	function formatNumber(n) {
+		if (n == null || Number.isNaN(n)) return '0';   // catch undefined / null
+		const suffixes = [
+			'', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp', 'Oc',
+			'No', 'Dc', 'Ud', 'Dd', 'Td', 'QaQd', 'SxQd', 'SpQd', 'OcqD',
+			'NvD', 'Ugn', 'Tgn', 'Qagn', 'Sxgn', 'Spgn', 'Ocgn', 'Nvgn',
+			'Ce', 'Uce', 'Dce', 'Tce', 'Qace', 'Sxce', 'Spce', 'Occe',
+			'Nvce', 'Ct', 'Uct', 'Dct', 'Tct', 'Qact', 'Sxct', 'Spct',
+			'Occt', 'Nvct', 'Se', 'Use', 'Dse', 'Tse', 'Qase', 'Sxse',
+			'Spse', 'Ocse', 'Nvse', 'Og', 'Uog', 'Dog', 'Tog', 'Qaog',
+			'Sxog', 'Spog', 'Ocog', 'Nvog', 'Un', 'Dun', 'Tun', 'Qaun',
+			'Sxun', 'Spun', 'Ocun', 'Nvn', 'Tr', 'Utr', 'Dtr', 'Ttr',
+			'Qatr', 'Sxtr', 'Sptr', 'Octr', 'Nvtr', 'Qd', 'Uqd', 'Dqd',
+			'Tqd', 'QaQd', 'SxQd', 'SpQd', 'OcqD', 'NvQd', 'Qt', 'Uqt',
+			'Dqt', 'Tqt', 'Qaqt', 'Sxqt', 'Spqt', 'Ocqt', 'Nvqt', 'Sxqt',
+			'Spqt', 'Ocqt', 'Nvqt', 'Qn', 'Uqn', 'Dqn', 'Tqn', 'Qaqn',
+			'Sxn', 'Spn', 'Ocn', 'Nvn', 'Qag', 'Uqag', 'Dqag', 'Tqag',
+			'Qaqag', 'Sxqag', 'Spqag', 'Ocqag', 'Nvqag', 'Mul', 'Umu',
+			'Dmu', 'Tmu', 'Qamu', 'Sxmu', 'Spmu', 'Ocmu', 'Nvmu'
+		];
+		let i = 0;
+		while (n >= 1000 && i < suffixes.length - 1) { n /= 1000; i++; }
+		return (n % 1 === 0 ? n : Number(n.toFixed(2))) + suffixes[i];
 	}
 </script>
-
 
 <main>
 	<div class="header">
@@ -229,9 +280,10 @@
 				Upgrades
 			{/if}
 		</button>
-		<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s</spna>
+		<spna class="multipliers">x{formatNumber(multiplier)} Multiplier</spna>
+		<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s (Auto)</spna>
 		<spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna>
-
+		
 		<a href="https://github.com/cosmic-fi" class="githublink" target="_blank" aria-label="Github"><i class="fa-brands fa-github"></i></a>
 	</div>
 
@@ -255,26 +307,26 @@
 	{#if isUpgradeOpen}
 		<aside class="upgrades">
 			<div class="upgrade-wrapper" transition:slide>
-				<div class="upgrade-header">
-					<h2>Upgrades</h2>
-					<button class="upgrade-close-btn" aria-label="Close" on:click={openUpgrades}>
-						<i class="fa fa-xmark"></i>
+			<div class="upgrade-header">
+				<h2>Upgrades</h2>
+				<button class="upgrade-close-btn" aria-label="Close" on:click={openUpgrades}>
+				<i class="fa fa-xmark"></i>
+				</button>
+			</div>
+			<p>Click to buy, cost increases each purchase:</p>
+			<div class="upgrades-container">
+				{#each mergedUpgrades as upgrade}
+					<button 
+						on:click={() => buyUpgrade(upgrade)}
+						disabled={bananas < upgrade.cost}>
+						{upgrade.name} ({formatNumber(upgrade.cost)}) <img src="./banana.png" alt="🍌" draggable="false" style="width:15px; height:auto; vertical-align: middle; margin-left: 5px;" />
 					</button>
-				</div>
-				<p>Click to buy, cost increases each purchase:</p>
-				<div class="upgrades-container">
-					{#each upgrades as upgrade}
-						<button 
-							on:click={() => buyUpgrade(upgrade)}
-							disabled={bananas < upgrade.cost}>
-							{upgrade.name} ({formatNumber(upgrade.cost)}) <img src="./banana.png" alt="🍌" draggable="false" style="width:15px; height:auto; vertical-align: middle; margin-left: 5px;" />
-						</button>
-					{/each}
-				</div>
-				<div class="upgrade-footer">
-					<span class="bperclick">+{formatNumber(bananasPerClick)}/Click</span>
-					<span>Total bananas: {formatNumber(bananas)}</span>
-				</div>
+				{/each}
+			</div>
+			<div class="upgrade-footer">
+				<span class="bperclick">+{formatNumber(bananasPerClick)}/Click</span>
+				<span>Total bananas: {formatNumber(bananas)}</span>
+			</div>
 			</div>
 		</aside>
 	{/if}
@@ -314,13 +366,13 @@
 	main {
 		font-family: "Comic Neue", monospace;
 		background: linear-gradient(to right, #fff8d6, #fffbe8, #fff8d6);
-		/* height: 100%; */
 		width: 550px;
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
 		position: relative;
 		border-inline: 2px dashed #f4d03f;
+		height: 100%;
 	}
 
 	.header {
@@ -412,6 +464,14 @@
 		box-shadow: 0 0 0 2px #ffffff;
 	}
 
+	.multipliers{
+		position: absolute;
+		bottom: 6.4rem;
+		left: 1rem;
+		font-size: 1.2rem;
+		font-weight: bold;
+		color: #584a12;
+	}
 	.autoClickPower{
 		position: absolute;
 		bottom: 5rem;
@@ -420,6 +480,18 @@
 		font-weight: bold;
 		color: #584a12;
 	}
+	.active-effects {
+		position: fixed;
+		top: 1rem;
+		right: 1rem;
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(10px);
+		padding: 10px;
+		border-radius: 8px;
+		font-family: monospace;
+		color: yellow;
+	}
+
 	.clickBuff{
 		position: absolute;
 		bottom: 3.5rem;
@@ -609,7 +681,7 @@
 		gap: 1rem;
 		padding-top: 1rem;
 		overflow: hidden;
-		overflow-y: scroll;
+		overflow-y: auto;
 	}
 
 	.setting-item {
