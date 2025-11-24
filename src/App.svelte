@@ -480,17 +480,6 @@
 		font-weight: bold;
 		color: #584a12;
 	}
-	.active-effects {
-		position: fixed;
-		top: 1rem;
-		right: 1rem;
-		background: rgba(255, 255, 255, 0.1);
-		backdrop-filter: blur(10px);
-		padding: 10px;
-		border-radius: 8px;
-		font-family: monospace;
-		color: yellow;
-	}
 
 	.clickBuff{
 		position: absolute;

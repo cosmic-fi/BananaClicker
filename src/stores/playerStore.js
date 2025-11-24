@@ -1,6 +1,5 @@
-// ./stores/playerStore.js
 import { writable } from 'svelte/store';
-import SHA256 from 'crypto-js/sha256'; // install via `npm install crypto-js`
+import SHA256 from 'crypto-js/sha256';
 
 // Default upgrades list
 const defaultUpgrades = [
@@ -79,10 +78,8 @@ function saveData(data) {
 // --- Writable store ---
 export const playerData = writable(loadData());
 
-// Auto-save whenever data changes
 playerData.subscribe(data => {
   saveData(data);
 });
 
-// Export default upgrades for your component
 export const upgradesList = defaultUpgrades;
