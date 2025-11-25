@@ -284,7 +284,7 @@
 		<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s (Auto)</spna>
 		<spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna>
 		
-		<a href="https://github.com/cosmic-fi" class="githublink" target="_blank" aria-label="Github"><i class="fa-brands fa-github"></i></a>
+		<a href="https://github.com/cosmic-fi/BananaClicker" class="githublink" target="_blank" aria-label="Github"><i class="fa-brands fa-github"></i></a>
 	</div>
 
 	<!-- Particle layer -->

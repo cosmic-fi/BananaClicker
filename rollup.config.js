@@ -6,6 +6,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import css from 'rollup-plugin-css-only';
 import json from '@rollup/plugin-json';
+import obfuscator from 'rollup-plugin-obfuscator';
+
 const production = !process.env.ROLLUP_WATCH;
 
 function serve() {
@@ -32,7 +34,7 @@ function serve() {
 export default {
 	input: 'src/main.js',
 	output: {
-		sourcemap: true,
+		sourcemap: !production, // keep dev sourcemap
 		format: 'iife',
 		name: 'app',
 		file: 'public/build/bundle.js'
@@ -40,20 +42,11 @@ export default {
 	plugins: [
 		svelte({
 			compilerOptions: {
-				// enable run-time checks when not in production
 				dev: !production
 			}
 		}),
 		json(),
-		// we'll extract any component CSS out into
-		// a separate file - better for performance
 		css({ output: 'bundle.css' }),
-
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
 		resolve({
 			browser: true,
 			dedupe: ['svelte'],
@@ -61,17 +54,25 @@ export default {
 		}),
 		commonjs(),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
 		!production && serve(),
-
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
 		!production && livereload('public'),
 
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser()
+		production && terser(), // minify in prod
+
+		// Obfuscate only in production
+		production && obfuscator({
+			compact: true,
+			controlFlowFlattening: true,
+			controlFlowFlatteningThreshold: 0.75,
+			deadCodeInjection: true,
+			deadCodeInjectionThreshold: 0.4,
+			debugProtection: false,
+			disableConsoleOutput: true,
+			stringArray: true,
+			stringArrayEncoding: ['base64'],
+			stringArrayThreshold: 0.75,
+			selfDefending: true
+		})
 	],
 	watch: {
 		clearScreen: false
