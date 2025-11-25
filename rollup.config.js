@@ -37,7 +37,7 @@ export default {
 		sourcemap: !production, // keep dev sourcemap
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: 'public/banana_forest/banana_bundle.js'
 	},
 	plugins: [
 		svelte({
@@ -46,7 +46,7 @@ export default {
 			}
 		}),
 		json(),
-		css({ output: 'bundle.css' }),
+		css({ output: 'banana_style.css' }),
 		resolve({
 			browser: true,
 			dedupe: ['svelte'],

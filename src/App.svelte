@@ -67,10 +67,7 @@
 
 	// --- Click Banana ---
 	function clickBanana(event) {
-		console.log('ahhh');
 		playerData.update(data => {
-
-			console.log(data.bananasPerClick)
 			const amountGained = data.bananasPerClick * (data.multiplier || 1);
 			const newBananas = data.bananas + amountGained;
 			
@@ -81,8 +78,6 @@
 
 			return { ...data, bananas: newBananas };
 		});
-
-		console.log($playerData);
 	}
 
 	// --- Buy Upgrade ---

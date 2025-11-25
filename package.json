@@ -1,6 +1,6 @@
 {
-  "name": "svelte-app",
-  "version": "1.2.2",
+  "name": "bananaclicker",
+  "version": "1.2.3",
   "private": true,
   "type": "module",
   "scripts": {
