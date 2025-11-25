@@ -1,12 +1,15 @@
 <script>
 	import { slide } from 'svelte/transition';
 	import { playerData, upgradesList } from './stores/playerStore';
+	import { startBananaGuard } from './bananaGuard'
 	import  pkg from '../package.json';
 
 	const version = pkg.version;
-
-	console.log(`%c [🛡️ Banana Guard]`, 'color: red;font-size:20px', ': Running');
-	console.log(`%c Banana Version: ${version}`, 'color: yellow;font-size:17px');
+	
+	//*=======***=======
+	startBananaGuard();
+	console.log(`%c Running Banana Version: ${version}`, 'color: yellow;font-size:13px', '(Latest Client)');
+	//*=======***=======
 
 	let particleId = 0;
 	let particles = [];
@@ -275,10 +278,11 @@
 				Upgrades
 			{/if}
 		</button>
-		<spna class="multipliers">x{formatNumber(multiplier)} Multiplier</spna>
-		<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s (Auto)</spna>
-		<spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna>
-		
+		<div class="buff-container">
+			<spna class="multipliers">x{formatNumber(multiplier)} Multiplier</spna>
+			<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s (Auto)</spna>
+			<spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna>
+		</div>
 		<a href="https://github.com/cosmic-fi/BananaClicker" class="githublink" target="_blank" aria-label="Github"><i class="fa-brands fa-github"></i></a>
 	</div>
 
@@ -447,10 +451,11 @@
 
 	.upgrade-button {
 		position: absolute;
-		bottom: .5rem;
-		left: 1rem;
-		padding: 0.5rem 1rem;
+		bottom: 5px;
+		left: 10px;
+		padding: .8rem 1.2rem;
 		font-size: 1rem;
+		font-weight: 600;
 		border-radius: 8px;
 		border: none;
 		background-color: #ffe135;
@@ -459,36 +464,23 @@
 		box-shadow: 0 0 0 2px #ffffff;
 	}
 
-	.multipliers{
+	.buff-container{
+		position: relative;
+		padding: 2px;
+		display: flex;
+		flex-direction: column;
 		position: absolute;
-		bottom: 6.4rem;
-		left: 1rem;
-		font-size: 1.2rem;
-		font-weight: bold;
+		left: 10px;
+		bottom: 70px;
+		font-weight: 600;
 		color: #584a12;
-	}
-	.autoClickPower{
-		position: absolute;
-		bottom: 5rem;
-		left: 1rem;
-		font-size: 1.2rem;
-		font-weight: bold;
-		color: #584a12;
-	}
-
-	.clickBuff{
-		position: absolute;
-		bottom: 3.5rem;
-		left: 1rem;
-		font-size: 1.2rem;
-		font-weight: bold;
-		color: #584a12;
+		font-size: 1rem;
 	}
 
 	.githublink {
 		position: absolute;
-		bottom: .5rem;
-		right: 1rem;
+		bottom: 5px;
+		right: 10px;
 		font-size: 2rem;
 		color: #584a12;
 		text-decoration: none;
@@ -514,6 +506,7 @@
 		bottom: -.4rem;
 		background: #fff5b8;
 		padding: 1rem;
+		padding-top: 0;
 		height: 80%;
 		border-radius: 12px;
 		border: 2px solid #f4d03f;
@@ -539,14 +532,13 @@
 		border-radius: 5px;
 		color: #584a12;
 		box-shadow: 0 0 0 2px #ffffff;
-		padding: 0.2rem 0.5rem;
+		padding: 0.8rem 1rem !important;
 
 	}
 	.upgrades-container {
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
-		/* max-height: 300px; */
 		overflow: hidden;
 		overflow-y: auto;
 		gap: 0.5rem;
@@ -554,12 +546,13 @@
 	}
 	.upgrades button {
 		cursor: pointer;
-		padding: 0.5rem;
+		padding: 1rem 0.5rem;
 		font-size: 1rem;
 		border-radius: 8px;
 		border: none;
 		background-color: #ffe135;
 		transition: transform 0.1s;
+		box-shadow: inset 0 0 0 2px #ffffff;
 	}
 	.upgrades button:active {
 		transform: scale(0.95);
@@ -634,7 +627,8 @@
 		width: calc(100% - 3rem);
 		bottom: -.4rem;
 		background: #fff5b8;
-		padding: 1rem;
+		padding: 0.7rem;
+		padding-top: 0 !important;
 		height: 50%;
 		border-radius: 12px;
 		border: 2px solid #f4d03f;
