@@ -268,6 +268,13 @@ var app = (function () {
 	}
 
 	/**
+	 * @returns {void} */
+	function toggle_class(element, name, toggle) {
+		// The `!!` is required because an `undefined` flag means flipping the current state.
+		element.classList.toggle(name, !!toggle);
+	}
+
+	/**
 	 * @template T
 	 * @param {string} type
 	 * @param {T} [detail]
@@ -2629,27 +2636,117 @@ var app = (function () {
 	// 🍌 Upgrade List
 	// ==========================
 	const upgradesList = [
-	  { name: "+1 per click", cost: 10, value: 1, label: "+1 per click", type: "click" },
-	  { name: "+5 per click", cost: 75, value: 5, label: "+5 per click", type: "click" },
-	  { name: "+10 per click", cost: 250, value: 10, label: "+10 per click", type: "click" },
-	  { name: "+50 per click", cost: 1000, value: 50, label: "+50 per click", type: "click" },
-	  { name: "+100 per click", cost: 5000, value: 100, label: "+100 per click", type: "click" },
+	  {
+	    name: "+1 per click",
+	    cost: 10,
+	    value: 1,
+	    label: "+1 per click",
+	    type: "click",
+	  },
+	  {
+	    name: "+5 per click",
+	    cost: 75,
+	    value: 5,
+	    label: "+5 per click",
+	    type: "click",
+	  },
+	  {
+	    name: "+10 per click",
+	    cost: 250,
+	    value: 10,
+	    label: "+10 per click",
+	    type: "click",
+	  },
+	  {
+	    name: "+50 per click",
+	    cost: 1000,
+	    value: 50,
+	    label: "+50 per click",
+	    type: "click",
+	  },
+	  {
+	    name: "+100 per click",
+	    cost: 5000,
+	    value: 100,
+	    label: "+100 per click",
+	    type: "click",
+	  },
 
-	  { name: "Auto Clicker +100/s", cost: 24000, value: 100, label: "Auto Clicker", type: "auto" },
-	  { name: "Auto Clicker +500/s", cost: 100000, value: 500, label: "Auto Clicker", type: "auto" },
-	  { name: "Super Auto Clicker +1k/s", cost: 250000, value: 1000, label: "Super Auto Clicker", type: "auto" },
-	  { name: "Golden Auto Clicker +10k/s", cost: 850000, value: 10000, label: "Golden Auto Clicker", type: "auto" },
+	  {
+	    name: "Auto Clicker +100/s",
+	    cost: 24000,
+	    value: 100,
+	    label: "+100 Auto Clicker",
+	    type: "auto",
+	  },
+	  {
+	    name: "Auto Clicker +500/s",
+	    cost: 100000,
+	    value: 500,
+	    label: "+500 Auto Clicker",
+	    type: "auto",
+	  },
 
-	  { name: "Mega Clicks +100k per click", cost: 5000000, value: 100000, label: "Mega Clicks", type: "click" },
+	  {
+	    name: "Super Auto Clicker +1k/s",
+	    cost: 250000,
+	    value: 1000,
+	    label: "Super Auto Clicker",
+	    type: "auto",
+	  },
+	  {
+	    name: "Golden Auto Clicker +10k/s",
+	    cost: 850000,
+	    value: 10000,
+	    label: "Golden Auto Clicker",
+	    type: "auto",
+	  },
 
-	  { name: "Banana Magnet (x2 Clicks)", cost: 5000000, value: 2, label: "Banana Magnet", type: "multiplier" },
-	  { name: "Golden Clicks (x5 Clicks)", cost: 7000000, value: 5, label: "Golden Clicks", type: "multiplier" },
+	  {
+	    name: "Mega Clicks +100k per click",
+	    cost: 5000000,
+	    value: 100000,
+	    label: "Mega Clicks",
+	    type: "click",
+	  },
 
-	  { name: "Banana Factory +200k/s", cost: 20000000, value: 200000, label: "Banana Factory", type: "auto" },
-	  { name: "Ultra Auto Clicker +20M/s", cost: 75000000, value: 20000000, label: "Ultra Auto Clicker", type: "auto" },
-	  { name: "OP Banana God +500M/s", cost: 15000000000000, value: 50000000, label: "Banana God", type: "auto" },
+	  {
+	    name: "Banana Magnet (x2 Clicks)",
+	    cost: 5000000,
+	    value: 2,
+	    label: "Banana Magnet",
+	    type: "multiplier",
+	  },
+	  {
+	    name: "Golden Clicks (x5 Clicks)",
+	    cost: 7000000,
+	    value: 5,
+	    label: "Golden Clicks",
+	    type: "multiplier",
+	  },
+
+	  {
+	    name: "Banana Factory +200k/s",
+	    cost: 20000000,
+	    value: 200000,
+	    label: "Banana Factory",
+	    type: "auto",
+	  },
+	  {
+	    name: "Ultra Auto Clicker +20M/s",
+	    cost: 75000000,
+	    value: 20000000,
+	    label: "Ultra Auto Clicker",
+	    type: "auto",
+	  },
+	  {
+	    name: "OP Banana God +500M/s",
+	    cost: 15000000000000,
+	    value: 50000000,
+	    label: "Banana God",
+	    type: "auto",
+	  },
 	];
-
 
 	// ==========================
 	// 🍌 Default Player Save
@@ -2664,9 +2761,8 @@ var app = (function () {
 	  soundFX: true,
 	  music: true,
 	  upgrades: [],
-	  activeEffects: {}
+	  activeEffects: {},
 	};
-
 
 	// ==========================
 	// 🍌 BananaGuard Hashing
@@ -2674,7 +2770,6 @@ var app = (function () {
 	function peelBanana$1(data) {
 	  return SHA256(JSON.stringify(data)).toString();
 	}
-
 
 	// ==========================
 	// 🍌 Load with BananaGuard
@@ -2686,37 +2781,92 @@ var app = (function () {
 
 	    const parsed = JSON.parse(raw);
 
-	    // Missing fields = invalid
-	    if (!parsed.data || !parsed.bananaPeel) return defaultData;
+	    // Check for missing fields
+	    if (!parsed.data || !parsed.bananaPeel) {
+	      console.warn(
+	        "%c[🍌 BananaGuard] Missing fields in saved data. Resetting save!",
+	        "color:red;font-size:16px",
+	      );
+	      return defaultData;
+	    }
 
 	    // Validate integrity
 	    const expected = peelBanana$1(parsed.data);
-
 	    if (expected !== parsed.bananaPeel) {
-	      console.warn("%c[🍌 BananaGuard] Tampering detected. Resetting save!", "color:red;font-size:16px");
+	      console.warn(
+	        "%c[🍌 BananaGuard] Tampering detected. Resetting save!",
+	        "color:red;font-size:16px",
+	      );
+	      return defaultData;
+	    }
+
+	    // Ensure the saved data has all required fields
+	    const requiredFields = [
+	      "bananas",
+	      "bananasPerClick",
+	      "baseBananasPerClick",
+	      "baseAutoClickPower",
+	      "multiplier",
+	      "autoClickPower",
+	      "soundFX",
+	      "music",
+	      "upgrades",
+	      "activeEffects",
+	    ];
+	    const hasAllFields = requiredFields.every((field) => field in parsed.data);
+
+	    if (!hasAllFields) {
+	      console.warn(
+	        "%c[🍌 BananaGuard] Saved data is missing required fields. Resetting save!",
+	        "color:red;font-size:16px",
+	      );
 	      return defaultData;
 	    }
 
 	    // Verified
-	    console.log("%c[🛡️ BananaGuard] Save integrity verified.", "color:#7CFC00;font-size:14px");
+	    console.log(
+	      "%c[🛡️ BananaGuard] Save integrity verified.",
+	      "color:#7CFC00;font-size:14px",
+	    );
 
 	    return parsed.data;
-
 	  } catch (err) {
 	    console.error("BananaGuard failed to load:", err);
 	    return defaultData;
 	  }
 	}
 
-
 	// ==========================
 	// 🍌 Save with BananaGuard
 	// ==========================
 	function BananaGuardSave(data) {
 	  try {
+	    // Ensure the data has all required fields
+	    const requiredFields = [
+	      "bananas",
+	      "bananasPerClick",
+	      "baseBananasPerClick",
+	      "baseAutoClickPower",
+	      "multiplier",
+	      "autoClickPower",
+	      "soundFX",
+	      "music",
+	      "upgrades",
+	      "activeEffects",
+	    ];
+	    const hasAllFields = requiredFields.every((field) => field in data);
+
+	    if (!hasAllFields) {
+	      console.warn(
+	        "%c[🍌 BananaGuard] Data is missing required fields. Not saving!",
+	        "color:red;font-size:16px",
+	      );
+	      return;
+	    }
+
 	    const sealedBanana = {
 	      data,
-	      bananaPeel: peelBanana$1(data)
+	      bananaPeel: peelBanana$1(data),
 	    };
 
 	    localStorage.setItem("bananaClicker", JSON.stringify(sealedBanana));
@@ -2724,7 +2874,6 @@ var app = (function () {
 	    console.error("BananaGuard failed to save:", err);
 	  }
 	}
-
 
 	// ==========================
 	// 🍌 Writable Store
@@ -2820,7 +2969,7 @@ var app = (function () {
 	}
 
 	var name = "bananaclicker";
-	var version = "1.2.4";
+	var version = "1.2.5";
 	var type = "module";
 	var scripts = {
 		build: "rollup -c",
@@ -2861,17 +3010,17 @@ var app = (function () {
 
 	function get_each_context(ctx, list, i) {
 		const child_ctx = ctx.slice();
-		child_ctx[34] = list[i];
+		child_ctx[38] = list[i];
 		return child_ctx;
 	}
 
 	function get_each_context_1(ctx, list, i) {
 		const child_ctx = ctx.slice();
-		child_ctx[37] = list[i];
+		child_ctx[41] = list[i];
 		return child_ctx;
 	}
 
-	// (277:3) {:else}
+	// (492:12) {:else}
 	function create_else_block(ctx) {
 		let t;
 
@@ -2893,14 +3042,14 @@ var app = (function () {
 			block,
 			id: create_else_block.name,
 			type: "else",
-			source: "(277:3) {:else}",
+			source: "(492:12) {:else}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (275:3) {#if isUpgradeOpen}
+	// (490:12) {#if isUpgradeOpen}
 	function create_if_block_2(ctx) {
 		let t;
 
@@ -2922,18 +3071,18 @@ var app = (function () {
 			block,
 			id: create_if_block_2.name,
 			type: "if",
-			source: "(275:3) {#if isUpgradeOpen}",
+			source: "(490:12) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (291:2) {#each particles as p (p.id)}
+	// (516:8) {#each particles as p (p.id)}
 	function create_each_block_1(key_1, ctx) {
 		let span;
 		let html_tag;
-		let raw_value = /*p*/ ctx[37].char + "";
+		let raw_value = /*p*/ ctx[41].char + "";
 		let t;
 
 		const block = {
@@ -2944,12 +3093,12 @@ var app = (function () {
 				html_tag = new HtmlTag(false);
 				t = space();
 				html_tag.a = t;
-				attr_dev(span, "class", "particle svelte-apeliw");
-				set_style(span, "left", /*p*/ ctx[37].x + "px");
-				set_style(span, "top", /*p*/ ctx[37].y + "px");
-				set_style(span, "transform", "rotate(" + /*p*/ ctx[37].rotation + "deg) scale(" + /*p*/ ctx[37].scale + ")");
-				set_style(span, "opacity", /*p*/ ctx[37].opacity);
-				add_location(span, file, 291, 3, 8880);
+				attr_dev(span, "class", "particle svelte-1pcwqjd");
+				set_style(span, "left", /*p*/ ctx[41].x + "px");
+				set_style(span, "top", /*p*/ ctx[41].y + "px");
+				set_style(span, "transform", "rotate(" + /*p*/ ctx[41].rotation + "deg) scale(" + /*p*/ ctx[41].scale + ")");
+				set_style(span, "opacity", /*p*/ ctx[41].opacity);
+				add_location(span, file, 516, 12, 14745);
 				this.first = span;
 			},
 			m: function mount(target, anchor) {
@@ -2959,22 +3108,22 @@ var app = (function () {
 			},
 			p: function update(new_ctx, dirty) {
 				ctx = new_ctx;
-				if (dirty[0] & /*particles*/ 2 && raw_value !== (raw_value = /*p*/ ctx[37].char + "")) html_tag.p(raw_value);
+				if (dirty[0] & /*particles*/ 2 && raw_value !== (raw_value = /*p*/ ctx[41].char + "")) html_tag.p(raw_value);
 
 				if (dirty[0] & /*particles*/ 2) {
-					set_style(span, "left", /*p*/ ctx[37].x + "px");
+					set_style(span, "left", /*p*/ ctx[41].x + "px");
 				}
 
 				if (dirty[0] & /*particles*/ 2) {
-					set_style(span, "top", /*p*/ ctx[37].y + "px");
+					set_style(span, "top", /*p*/ ctx[41].y + "px");
 				}
 
 				if (dirty[0] & /*particles*/ 2) {
-					set_style(span, "transform", "rotate(" + /*p*/ ctx[37].rotation + "deg) scale(" + /*p*/ ctx[37].scale + ")");
+					set_style(span, "transform", "rotate(" + /*p*/ ctx[41].rotation + "deg) scale(" + /*p*/ ctx[41].scale + ")");
 				}
 
 				if (dirty[0] & /*particles*/ 2) {
-					set_style(span, "opacity", /*p*/ ctx[37].opacity);
+					set_style(span, "opacity", /*p*/ ctx[41].opacity);
 				}
 			},
 			d: function destroy(detaching) {
@@ -2988,14 +3137,14 @@ var app = (function () {
 			block,
 			id: create_each_block_1.name,
 			type: "each",
-			source: "(291:2) {#each particles as p (p.id)}",
+			source: "(516:8) {#each particles as p (p.id)}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (306:1) {#if isUpgradeOpen}
+	// (532:4) {#if isUpgradeOpen}
 	function create_if_block_1(ctx) {
 		let aside;
 		let div3;
@@ -3012,19 +3161,19 @@ var app = (function () {
 		let div2;
 		let span0;
 		let t6;
-		let t7_value = formatNumber(/*bananasPerClick*/ ctx[7]) + "";
+		let t7_value = formatNumber(/*bananasPerClick*/ ctx[8]) + "";
 		let t7;
 		let t8;
 		let t9;
 		let span1;
 		let t10;
-		let t11_value = formatNumber(/*bananas*/ ctx[6]) + "";
+		let t11_value = formatNumber(/*bananas*/ ctx[7]) + "";
 		let t11;
 		let div3_transition;
 		let current;
 		let mounted;
 		let dispose;
-		let each_value = ensure_array_like_dev(/*mergedUpgrades*/ ctx[10]);
+		let each_value = ensure_array_like_dev(/*mergedUpgrades*/ ctx[11]);
 		let each_blocks = [];
 
 		for (let i = 0; i < each_value.length; i += 1) {
@@ -3061,26 +3210,26 @@ var app = (function () {
 				span1 = element("span");
 				t10 = text("Total bananas: ");
 				t11 = text(t11_value);
-				add_location(h2, file, 309, 4, 9263);
+				add_location(h2, file, 535, 20, 15242);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 311, 4, 9367);
-				attr_dev(button, "class", "upgrade-close-btn svelte-apeliw");
+				add_location(i, file, 541, 24, 15475);
+				attr_dev(button, "class", "upgrade-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 310, 4, 9285);
-				attr_dev(div0, "class", "upgrade-header svelte-apeliw");
-				add_location(div0, file, 308, 3, 9230);
-				add_location(p_1, file, 314, 3, 9422);
-				attr_dev(div1, "class", "upgrades-container svelte-apeliw");
-				add_location(div1, file, 315, 3, 9476);
-				attr_dev(span0, "class", "bperclick svelte-apeliw");
-				add_location(span0, file, 325, 4, 9899);
-				add_location(span1, file, 326, 4, 9973);
-				attr_dev(div2, "class", "upgrade-footer svelte-apeliw");
-				add_location(div2, file, 324, 3, 9866);
-				attr_dev(div3, "class", "upgrade-wrapper svelte-apeliw");
-				add_location(div3, file, 307, 3, 9180);
-				attr_dev(aside, "class", "upgrades svelte-apeliw");
-				add_location(aside, file, 306, 2, 9152);
+				add_location(button, file, 536, 20, 15280);
+				attr_dev(div0, "class", "upgrade-header svelte-1pcwqjd");
+				add_location(div0, file, 534, 16, 15193);
+				add_location(p_1, file, 544, 16, 15572);
+				attr_dev(div1, "class", "upgrades-container svelte-1pcwqjd");
+				add_location(div1, file, 545, 16, 15639);
+				attr_dev(span0, "class", "bperclick svelte-1pcwqjd");
+				add_location(span0, file, 562, 20, 16448);
+				add_location(span1, file, 565, 20, 16584);
+				attr_dev(div2, "class", "upgrade-footer svelte-1pcwqjd");
+				add_location(div2, file, 561, 16, 16399);
+				attr_dev(div3, "class", "upgrade-wrapper svelte-1pcwqjd");
+				add_location(div3, file, 533, 12, 15130);
+				attr_dev(aside, "class", "upgrades svelte-1pcwqjd");
+				add_location(aside, file, 532, 8, 15093);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3114,13 +3263,13 @@ var app = (function () {
 				current = true;
 
 				if (!mounted) {
-					dispose = listen_dev(button, "click", /*openUpgrades*/ ctx[16], false, false, false, false);
+					dispose = listen_dev(button, "click", /*openUpgrades*/ ctx[17], false, false, false, false);
 					mounted = true;
 				}
 			},
 			p: function update(ctx, dirty) {
-				if (dirty[0] & /*bananas, mergedUpgrades, buyUpgrade*/ 9280) {
-					each_value = ensure_array_like_dev(/*mergedUpgrades*/ ctx[10]);
+				if (dirty[0] & /*bananas, mergedUpgrades, buyUpgrade*/ 18560) {
+					each_value = ensure_array_like_dev(/*mergedUpgrades*/ ctx[11]);
 					let i;
 
 					for (i = 0; i < each_value.length; i += 1) {
@@ -3142,8 +3291,8 @@ var app = (function () {
 					each_blocks.length = each_value.length;
 				}
 
-				if ((!current || dirty[0] & /*bananasPerClick*/ 128) && t7_value !== (t7_value = formatNumber(/*bananasPerClick*/ ctx[7]) + "")) set_data_dev(t7, t7_value);
-				if ((!current || dirty[0] & /*bananas*/ 64) && t11_value !== (t11_value = formatNumber(/*bananas*/ ctx[6]) + "")) set_data_dev(t11, t11_value);
+				if ((!current || dirty[0] & /*bananasPerClick*/ 256) && t7_value !== (t7_value = formatNumber(/*bananasPerClick*/ ctx[8]) + "")) set_data_dev(t7, t7_value);
+				if ((!current || dirty[0] & /*bananas*/ 128) && t11_value !== (t11_value = formatNumber(/*bananas*/ ctx[7]) + "")) set_data_dev(t11, t11_value);
 			},
 			i: function intro(local) {
 				if (current) return;
@@ -3182,20 +3331,20 @@ var app = (function () {
 			block,
 			id: create_if_block_1.name,
 			type: "if",
-			source: "(306:1) {#if isUpgradeOpen}",
+			source: "(532:4) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (317:4) {#each mergedUpgrades as upgrade}
+	// (547:20) {#each mergedUpgrades as upgrade}
 	function create_each_block(ctx) {
 		let button;
-		let t0_value = /*upgrade*/ ctx[34].name + "";
+		let t0_value = /*upgrade*/ ctx[38].name + "";
 		let t0;
 		let t1;
-		let t2_value = formatNumber(/*upgrade*/ ctx[34].cost) + "";
+		let t2_value = formatNumber(/*upgrade*/ ctx[38].cost) + "";
 		let t2;
 		let t3;
 		let img;
@@ -3206,7 +3355,7 @@ var app = (function () {
 		let dispose;
 
 		function click_handler() {
-			return /*click_handler*/ ctx[21](/*upgrade*/ ctx[34]);
+			return /*click_handler*/ ctx[23](/*upgrade*/ ctx[38]);
 		}
 
 		const block = {
@@ -3215,7 +3364,7 @@ var app = (function () {
 				t0 = text(t0_value);
 				t1 = text(" (");
 				t2 = text(t2_value);
-				t3 = text(") ");
+				t3 = text(")\n                            ");
 				img = element("img");
 				t4 = space();
 				if (!src_url_equal(img.src, img_src_value = "./banana.png")) attr_dev(img, "src", img_src_value);
@@ -3225,10 +3374,10 @@ var app = (function () {
 				set_style(img, "height", "auto");
 				set_style(img, "vertical-align", "middle");
 				set_style(img, "margin-left", "5px");
-				add_location(img, file, 320, 52, 9697);
-				button.disabled = button_disabled_value = /*bananas*/ ctx[6] < /*upgrade*/ ctx[34].cost;
-				attr_dev(button, "class", "svelte-apeliw");
-				add_location(button, file, 317, 5, 9552);
+				add_location(img, file, 552, 28, 16013);
+				button.disabled = button_disabled_value = /*bananas*/ ctx[7] < /*upgrade*/ ctx[38].cost;
+				attr_dev(button, "class", "svelte-1pcwqjd");
+				add_location(button, file, 547, 24, 15750);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, button, anchor);
@@ -3246,10 +3395,10 @@ var app = (function () {
 			},
 			p: function update(new_ctx, dirty) {
 				ctx = new_ctx;
-				if (dirty[0] & /*mergedUpgrades*/ 1024 && t0_value !== (t0_value = /*upgrade*/ ctx[34].name + "")) set_data_dev(t0, t0_value);
-				if (dirty[0] & /*mergedUpgrades*/ 1024 && t2_value !== (t2_value = formatNumber(/*upgrade*/ ctx[34].cost) + "")) set_data_dev(t2, t2_value);
+				if (dirty[0] & /*mergedUpgrades*/ 2048 && t0_value !== (t0_value = /*upgrade*/ ctx[38].name + "")) set_data_dev(t0, t0_value);
+				if (dirty[0] & /*mergedUpgrades*/ 2048 && t2_value !== (t2_value = formatNumber(/*upgrade*/ ctx[38].cost) + "")) set_data_dev(t2, t2_value);
 
-				if (dirty[0] & /*bananas, mergedUpgrades*/ 1088 && button_disabled_value !== (button_disabled_value = /*bananas*/ ctx[6] < /*upgrade*/ ctx[34].cost)) {
+				if (dirty[0] & /*bananas, mergedUpgrades*/ 2176 && button_disabled_value !== (button_disabled_value = /*bananas*/ ctx[7] < /*upgrade*/ ctx[38].cost)) {
 					prop_dev(button, "disabled", button_disabled_value);
 				}
 			},
@@ -3267,14 +3416,14 @@ var app = (function () {
 			block,
 			id: create_each_block.name,
 			type: "each",
-			source: "(317:4) {#each mergedUpgrades as upgrade}",
+			source: "(547:20) {#each mergedUpgrades as upgrade}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (332:1) {#if isSettingsOpen}
+	// (571:4) {#if isSettingsOpen}
 	function create_if_block(ctx) {
 		let aside;
 		let div4;
@@ -3334,42 +3483,42 @@ var app = (function () {
 				input1 = element("input");
 				t9 = space();
 				span3 = element("span");
-				add_location(h2, file, 335, 5, 10202);
+				add_location(h2, file, 574, 20, 16889);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 337, 6, 10310);
-				attr_dev(button, "class", "settings-close-btn svelte-apeliw");
+				add_location(i, file, 580, 24, 17123);
+				attr_dev(button, "class", "settings-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 336, 5, 10225);
-				attr_dev(div0, "class", "settings-header svelte-apeliw");
-				add_location(div0, file, 334, 4, 10167);
-				add_location(span0, file, 343, 6, 10438);
+				add_location(button, file, 575, 20, 16927);
+				attr_dev(div0, "class", "settings-header svelte-1pcwqjd");
+				add_location(div0, file, 573, 16, 16839);
+				add_location(span0, file, 586, 24, 17323);
 				attr_dev(input0, "type", "checkbox");
-				input0.checked = /*soundFX*/ ctx[9];
-				attr_dev(input0, "class", "svelte-apeliw");
-				add_location(input0, file, 345, 7, 10496);
-				attr_dev(span1, "class", "slider svelte-apeliw");
-				add_location(span1, file, 346, 7, 10596);
-				attr_dev(label0, "class", "toggle svelte-apeliw");
-				add_location(label0, file, 344, 6, 10466);
-				attr_dev(div1, "class", "setting-item svelte-apeliw");
-				add_location(div1, file, 342, 5, 10405);
-				add_location(span2, file, 351, 6, 10691);
+				input0.checked = /*soundFX*/ ctx[10];
+				attr_dev(input0, "class", "svelte-1pcwqjd");
+				add_location(input0, file, 588, 28, 17420);
+				attr_dev(span1, "class", "slider svelte-1pcwqjd");
+				add_location(span1, file, 594, 28, 17703);
+				attr_dev(label0, "class", "toggle svelte-1pcwqjd");
+				add_location(label0, file, 587, 24, 17369);
+				attr_dev(div1, "class", "setting-item svelte-1pcwqjd");
+				add_location(div1, file, 585, 20, 17272);
+				add_location(span2, file, 599, 24, 17864);
 				attr_dev(input1, "type", "checkbox");
 				input1.checked = /*music*/ ctx[0];
-				attr_dev(input1, "class", "svelte-apeliw");
-				add_location(input1, file, 353, 7, 10746);
-				attr_dev(span3, "class", "slider svelte-apeliw");
-				add_location(span3, file, 354, 7, 10842);
-				attr_dev(label1, "class", "toggle svelte-apeliw");
-				add_location(label1, file, 352, 6, 10716);
-				attr_dev(div2, "class", "setting-item svelte-apeliw");
-				add_location(div2, file, 350, 5, 10658);
-				attr_dev(div3, "class", "settings-options svelte-apeliw");
-				add_location(div3, file, 341, 4, 10369);
-				attr_dev(div4, "class", "settings-wrapper svelte-apeliw");
-				add_location(div4, file, 333, 3, 10115);
-				attr_dev(aside, "class", "settings svelte-apeliw");
-				add_location(aside, file, 332, 2, 10087);
+				attr_dev(input1, "class", "svelte-1pcwqjd");
+				add_location(input1, file, 601, 28, 17958);
+				attr_dev(span3, "class", "slider svelte-1pcwqjd");
+				add_location(span3, file, 606, 28, 18201);
+				attr_dev(label1, "class", "toggle svelte-1pcwqjd");
+				add_location(label1, file, 600, 24, 17907);
+				attr_dev(div2, "class", "setting-item svelte-1pcwqjd");
+				add_location(div2, file, 598, 20, 17813);
+				attr_dev(div3, "class", "settings-options svelte-1pcwqjd");
+				add_location(div3, file, 584, 16, 17221);
+				attr_dev(div4, "class", "settings-wrapper svelte-1pcwqjd");
+				add_location(div4, file, 572, 12, 16775);
+				attr_dev(aside, "class", "settings svelte-1pcwqjd");
+				add_location(aside, file, 571, 8, 16738);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3400,17 +3549,17 @@ var app = (function () {
 
 				if (!mounted) {
 					dispose = [
-						listen_dev(button, "click", /*openSettings*/ ctx[17], false, false, false, false),
-						listen_dev(input0, "change", /*change_handler*/ ctx[22], false, false, false, false),
-						listen_dev(input1, "change", /*change_handler_1*/ ctx[23], false, false, false, false)
+						listen_dev(button, "click", /*openSettings*/ ctx[18], false, false, false, false),
+						listen_dev(input0, "change", /*change_handler*/ ctx[24], false, false, false, false),
+						listen_dev(input1, "change", /*change_handler_1*/ ctx[25], false, false, false, false)
 					];
 
 					mounted = true;
 				}
 			},
 			p: function update(ctx, dirty) {
-				if (!current || dirty[0] & /*soundFX*/ 512) {
-					prop_dev(input0, "checked", /*soundFX*/ ctx[9]);
+				if (!current || dirty[0] & /*soundFX*/ 1024) {
+					prop_dev(input0, "checked", /*soundFX*/ ctx[10]);
 				}
 
 				if (!current || dirty[0] & /*music*/ 1) {
@@ -3453,7 +3602,7 @@ var app = (function () {
 			block,
 			id: create_if_block.name,
 			type: "if",
-			source: "(332:1) {#if isSettingsOpen}",
+			source: "(571:4) {#if isSettingsOpen}",
 			ctx
 		});
 
@@ -3477,7 +3626,7 @@ var app = (function () {
 		let img1;
 		let img1_src_value;
 		let t5;
-		let t6_value = formatNumber(/*bananas*/ ctx[6]) + "";
+		let t6_value = formatNumber(/*bananas*/ ctx[7]) + "";
 		let t6;
 		let t7;
 		let div1;
@@ -3489,19 +3638,19 @@ var app = (function () {
 		let div2;
 		let spna0;
 		let t10;
-		let t11_value = formatNumber(/*multiplier*/ ctx[5]) + "";
+		let t11_value = formatNumber(/*multiplier*/ ctx[6]) + "";
 		let t11;
 		let t12;
 		let t13;
 		let spna1;
 		let t14;
-		let t15_value = formatNumber(/*autoClickPower*/ ctx[8]) + "";
+		let t15_value = formatNumber(/*autoClickPower*/ ctx[9]) + "";
 		let t15;
 		let t16;
 		let t17;
 		let spna2;
 		let t18;
-		let t19_value = formatNumber(/*bananasPerClick*/ ctx[7]) + "";
+		let t19_value = formatNumber(/*bananasPerClick*/ ctx[8]) + "";
 		let t19;
 		let t20;
 		let t21;
@@ -3524,7 +3673,7 @@ var app = (function () {
 		let current_block_type = select_block_type(ctx);
 		let if_block0 = current_block_type(ctx);
 		let each_value_1 = ensure_array_like_dev(/*particles*/ ctx[1]);
-		const get_key = ctx => /*p*/ ctx[37].id;
+		const get_key = ctx => /*p*/ ctx[41].id;
 		validate_each_keys(ctx, each_value_1, get_each_context_1, get_key);
 
 		for (let i = 0; i < each_value_1.length; i += 1) {
@@ -3544,7 +3693,7 @@ var app = (function () {
 				img0 = element("img");
 				t0 = space();
 				span0 = element("span");
-				span0.textContent = `v${/*version*/ ctx[11]}`;
+				span0.textContent = `v${/*version*/ ctx[12]}`;
 				t3 = space();
 				button0 = element("button");
 				i0 = element("i");
@@ -3597,18 +3746,18 @@ var app = (function () {
 				set_style(img0, "height", "auto");
 				set_style(img0, "vertical-align", "middle");
 				set_style(img0, "margin-right", "5px");
-				add_location(img0, file, 251, 3, 7273);
-				attr_dev(span0, "class", "version svelte-apeliw");
-				add_location(span0, file, 252, 3, 7405);
-				attr_dev(h1, "class", "title svelte-apeliw");
-				add_location(h1, file, 250, 2, 7251);
+				add_location(img0, file, 452, 12, 12532);
+				attr_dev(span0, "class", "version svelte-1pcwqjd");
+				add_location(span0, file, 458, 12, 12749);
+				attr_dev(h1, "class", "title svelte-1pcwqjd");
+				add_location(h1, file, 451, 8, 12501);
 				attr_dev(i0, "class", "fa fa-gear");
-				add_location(i0, file, 255, 3, 7526);
-				attr_dev(button0, "class", "menu svelte-apeliw");
+				add_location(i0, file, 461, 12, 12891);
+				attr_dev(button0, "class", "menu svelte-1pcwqjd");
 				attr_dev(button0, "aria-label", "Settings");
-				add_location(button0, file, 254, 2, 7455);
-				attr_dev(div0, "class", "header svelte-apeliw");
-				add_location(div0, file, 249, 1, 7228);
+				add_location(button0, file, 460, 8, 12811);
+				attr_dev(div0, "class", "header svelte-1pcwqjd");
+				add_location(div0, file, 450, 4, 12472);
 				if (!src_url_equal(img1.src, img1_src_value = "./banana.png")) attr_dev(img1, "src", img1_src_value);
 				attr_dev(img1, "alt", "🍌");
 				attr_dev(img1, "draggable", "false");
@@ -3616,39 +3765,40 @@ var app = (function () {
 				set_style(img1, "height", "auto");
 				set_style(img1, "vertical-align", "middle");
 				set_style(img1, "margin-right", "5px");
-				add_location(img1, file, 262, 3, 7691);
-				attr_dev(span1, "class", "score-count svelte-apeliw");
-				add_location(span1, file, 261, 2, 7661);
+				add_location(img1, file, 468, 12, 13115);
+				attr_dev(span1, "class", "score-count svelte-1pcwqjd");
+				toggle_class(span1, "animate", /*animateLabel*/ ctx[5]);
+				add_location(span1, file, 467, 8, 13047);
 				if (!src_url_equal(img2.src, img2_src_value = "./bananaman.png")) attr_dev(img2, "src", img2_src_value);
 				attr_dev(img2, "alt", "🍌");
 				attr_dev(img2, "draggable", "false");
-				attr_dev(img2, "class", "svelte-apeliw");
-				add_location(img2, file, 270, 3, 8147);
-				attr_dev(div1, "class", "banana-center svelte-apeliw");
-				add_location(div1, file, 269, 2, 8067);
-				attr_dev(button1, "class", "upgrade-button svelte-apeliw");
-				add_location(button1, file, 273, 2, 8216);
+				attr_dev(img2, "class", "svelte-1pcwqjd");
+				add_location(img2, file, 485, 12, 13744);
+				attr_dev(div1, "class", "banana-center svelte-1pcwqjd");
+				add_location(div1, file, 480, 8, 13610);
+				attr_dev(button1, "class", "upgrade-button svelte-1pcwqjd");
+				add_location(button1, file, 488, 8, 13825);
 				attr_dev(spna0, "class", "multipliers");
-				add_location(spna0, file, 281, 3, 8393);
+				add_location(spna0, file, 496, 12, 14074);
 				attr_dev(spna1, "class", "autoClickPower");
-				add_location(spna1, file, 282, 3, 8468);
+				add_location(spna1, file, 499, 12, 14188);
 				attr_dev(spna2, "class", "clickBuff");
-				add_location(spna2, file, 283, 3, 8548);
-				attr_dev(div2, "class", "buff-container svelte-apeliw");
-				add_location(div2, file, 280, 2, 8361);
+				add_location(spna2, file, 502, 12, 14307);
+				attr_dev(div2, "class", "buff-container svelte-1pcwqjd");
+				add_location(div2, file, 495, 8, 14033);
 				attr_dev(i1, "class", "fa-brands fa-github");
-				add_location(i1, file, 285, 110, 8737);
+				add_location(i1, file, 509, 32, 14569);
 				attr_dev(a, "href", "https://github.com/cosmic-fi/BananaClicker");
-				attr_dev(a, "class", "githublink svelte-apeliw");
+				attr_dev(a, "class", "githublink svelte-1pcwqjd");
 				attr_dev(a, "target", "_blank");
 				attr_dev(a, "aria-label", "Github");
-				add_location(a, file, 285, 2, 8629);
-				attr_dev(div3, "class", "game-area svelte-apeliw");
-				add_location(div3, file, 260, 1, 7635);
-				attr_dev(div4, "class", "particle-container svelte-apeliw");
-				add_location(div4, file, 289, 1, 8812);
-				attr_dev(main, "class", "svelte-apeliw");
-				add_location(main, file, 248, 0, 7220);
+				add_location(a, file, 505, 8, 14413);
+				attr_dev(div3, "class", "game-area svelte-1pcwqjd");
+				add_location(div3, file, 466, 4, 13015);
+				attr_dev(div4, "class", "particle-container svelte-1pcwqjd");
+				add_location(div4, file, 514, 4, 14662);
+				attr_dev(main, "class", "svelte-1pcwqjd");
+				add_location(main, file, 449, 0, 12461);
 			},
 			l: function claim(nodes) {
 				throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3672,7 +3822,7 @@ var app = (function () {
 				append_dev(div3, t7);
 				append_dev(div3, div1);
 				append_dev(div1, img2);
-				/*div1_binding*/ ctx[20](div1);
+				/*div1_binding*/ ctx[22](div1);
 				append_dev(div3, t8);
 				append_dev(div3, button1);
 				if_block0.m(button1, null);
@@ -3711,16 +3861,20 @@ var app = (function () {
 
 				if (!mounted) {
 					dispose = [
-						listen_dev(button0, "click", /*openSettings*/ ctx[17], false, false, false, false),
-						listen_dev(div1, "click", /*clickBanana*/ ctx[12], false, false, false, false),
-						listen_dev(button1, "click", /*openUpgrades*/ ctx[16], false, false, false, false)
+						listen_dev(button0, "click", /*openSettings*/ ctx[18], false, false, false, false),
+						listen_dev(div1, "click", /*clickBanana*/ ctx[13], false, false, false, false),
+						listen_dev(button1, "click", /*openUpgrades*/ ctx[17], false, false, false, false)
 					];
 
 					mounted = true;
 				}
 			},
 			p: function update(ctx, dirty) {
-				if (dirty[0] & /*bananas*/ 64 && t6_value !== (t6_value = formatNumber(/*bananas*/ ctx[6]) + "")) set_data_dev(t6, t6_value);
+				if (dirty[0] & /*bananas*/ 128 && t6_value !== (t6_value = formatNumber(/*bananas*/ ctx[7]) + "")) set_data_dev(t6, t6_value);
+
+				if (dirty[0] & /*animateLabel*/ 32) {
+					toggle_class(span1, "animate", /*animateLabel*/ ctx[5]);
+				}
 
 				if (current_block_type !== (current_block_type = select_block_type(ctx))) {
 					if_block0.d(1);
@@ -3732,9 +3886,9 @@ var app = (function () {
 					}
 				}
 
-				if (dirty[0] & /*multiplier*/ 32 && t11_value !== (t11_value = formatNumber(/*multiplier*/ ctx[5]) + "")) set_data_dev(t11, t11_value);
-				if (dirty[0] & /*autoClickPower*/ 256 && t15_value !== (t15_value = formatNumber(/*autoClickPower*/ ctx[8]) + "")) set_data_dev(t15, t15_value);
-				if (dirty[0] & /*bananasPerClick*/ 128 && t19_value !== (t19_value = formatNumber(/*bananasPerClick*/ ctx[7]) + "")) set_data_dev(t19, t19_value);
+				if (dirty[0] & /*multiplier*/ 64 && t11_value !== (t11_value = formatNumber(/*multiplier*/ ctx[6]) + "")) set_data_dev(t11, t11_value);
+				if (dirty[0] & /*autoClickPower*/ 512 && t15_value !== (t15_value = formatNumber(/*autoClickPower*/ ctx[9]) + "")) set_data_dev(t15, t15_value);
+				if (dirty[0] & /*bananasPerClick*/ 256 && t19_value !== (t19_value = formatNumber(/*bananasPerClick*/ ctx[8]) + "")) set_data_dev(t19, t19_value);
 
 				if (dirty[0] & /*particles*/ 2) {
 					each_value_1 = ensure_array_like_dev(/*particles*/ ctx[1]);
@@ -3801,7 +3955,7 @@ var app = (function () {
 					detach_dev(main);
 				}
 
-				/*div1_binding*/ ctx[20](null);
+				/*div1_binding*/ ctx[22](null);
 				if_block0.d();
 
 				for (let i = 0; i < each_blocks.length; i += 1) {
@@ -3826,139 +3980,142 @@ var app = (function () {
 		return block;
 	}
 
+	const MAX_PARTICLES = 700;
+
+	// --- Number Formatting ---
 	function formatNumber(n) {
-		if (n == null || Number.isNaN(n)) return '0'; // catch undefined / null
+		if (n == null || Number.isNaN(n)) return "0"; // catch undefined / null
 
 		const suffixes = [
-			'',
-			'K',
-			'M',
-			'B',
-			'T',
-			'Q',
-			'Qi',
-			'Sx',
-			'Sp',
-			'Oc',
-			'No',
-			'Dc',
-			'Ud',
-			'Dd',
-			'Td',
-			'QaQd',
-			'SxQd',
-			'SpQd',
-			'OcqD',
-			'NvD',
-			'Ugn',
-			'Tgn',
-			'Qagn',
-			'Sxgn',
-			'Spgn',
-			'Ocgn',
-			'Nvgn',
-			'Ce',
-			'Uce',
-			'Dce',
-			'Tce',
-			'Qace',
-			'Sxce',
-			'Spce',
-			'Occe',
-			'Nvce',
-			'Ct',
-			'Uct',
-			'Dct',
-			'Tct',
-			'Qact',
-			'Sxct',
-			'Spct',
-			'Occt',
-			'Nvct',
-			'Se',
-			'Use',
-			'Dse',
-			'Tse',
-			'Qase',
-			'Sxse',
-			'Spse',
-			'Ocse',
-			'Nvse',
-			'Og',
-			'Uog',
-			'Dog',
-			'Tog',
-			'Qaog',
-			'Sxog',
-			'Spog',
-			'Ocog',
-			'Nvog',
-			'Un',
-			'Dun',
-			'Tun',
-			'Qaun',
-			'Sxun',
-			'Spun',
-			'Ocun',
-			'Nvn',
-			'Tr',
-			'Utr',
-			'Dtr',
-			'Ttr',
-			'Qatr',
-			'Sxtr',
-			'Sptr',
-			'Octr',
-			'Nvtr',
-			'Qd',
-			'Uqd',
-			'Dqd',
-			'Tqd',
-			'QaQd',
-			'SxQd',
-			'SpQd',
-			'OcqD',
-			'NvQd',
-			'Qt',
-			'Uqt',
-			'Dqt',
-			'Tqt',
-			'Qaqt',
-			'Sxqt',
-			'Spqt',
-			'Ocqt',
-			'Nvqt',
-			'Sxqt',
-			'Spqt',
-			'Ocqt',
-			'Nvqt',
-			'Qn',
-			'Uqn',
-			'Dqn',
-			'Tqn',
-			'Qaqn',
-			'Sxn',
-			'Spn',
-			'Ocn',
-			'Nvn',
-			'Qag',
-			'Uqag',
-			'Dqag',
-			'Tqag',
-			'Qaqag',
-			'Sxqag',
-			'Spqag',
-			'Ocqag',
-			'Nvqag',
-			'Mul',
-			'Umu',
-			'Dmu',
-			'Tmu',
-			'Qamu',
-			'Sxmu',
-			'Spmu',
-			'Ocmu',
-			'Nvmu'
+			"",
+			"K",
+			"M",
+			"B",
+			"T",
+			"Q",
+			"Qi",
+			"Sx",
+			"Sp",
+			"Oc",
+			"No",
+			"Dc",
+			"Ud",
+			"Dd",
+			"Td",
+			"QaQd",
+			"SxQd",
+			"SpQd",
+			"OcqD",
+			"NvD",
+			"Ugn",
+			"Tgn",
+			"Qagn",
+			"Sxgn",
+			"Spgn",
+			"Ocgn",
+			"Nvgn",
+			"Ce",
+			"Uce",
+			"Dce",
+			"Tce",
+			"Qace",
+			"Sxce",
+			"Spce",
+			"Occe",
+			"Nvce",
+			"Ct",
+			"Uct",
+			"Dct",
+			"Tct",
+			"Qact",
+			"Sxct",
+			"Spct",
+			"Occt",
+			"Nvct",
+			"Se",
+			"Use",
+			"Dse",
+			"Tse",
+			"Qase",
+			"Sxse",
+			"Spse",
+			"Ocse",
+			"Nvse",
+			"Og",
+			"Uog",
+			"Dog",
+			"Tog",
+			"Qaog",
+			"Sxog",
+			"Spog",
+			"Ocog",
+			"Nvog",
+			"Un",
+			"Dun",
+			"Tun",
+			"Qaun",
+			"Sxun",
+			"Spun",
+			"Ocun",
+			"Nvn",
+			"Tr",
+			"Utr",
+			"Dtr",
+			"Ttr",
+			"Qatr",
+			"Sxtr",
+			"Sptr",
+			"Octr",
+			"Nvtr",
+			"Qd",
+			"Uqd",
+			"Dqd",
+			"Tqd",
+			"QaQd",
+			"SxQd",
+			"SpQd",
+			"OcqD",
+			"NvQd",
+			"Qt",
+			"Uqt",
+			"Dqt",
+			"Tqt",
+			"Qaqt",
+			"Sxqt",
+			"Spqt",
+			"Ocqt",
+			"Nvqt",
+			"Sxqt",
+			"Spqt",
+			"Ocqt",
+			"Nvqt",
+			"Qn",
+			"Uqn",
+			"Dqn",
+			"Tqn",
+			"Qaqn",
+			"Sxn",
+			"Spn",
+			"Ocn",
+			"Nvn",
+			"Qag",
+			"Uqag",
+			"Dqag",
+			"Tqag",
+			"Qaqag",
+			"Sxqag",
+			"Spqag",
+			"Ocqag",
+			"Nvqag",
+			"Mul",
+			"Umu",
+			"Dmu",
+			"Tmu",
+			"Qamu",
+			"Sxmu",
+			"Spmu",
+			"Ocmu",
+			"Nvmu"
 		];
 
 		let i = 0;
@@ -3980,7 +4137,7 @@ var app = (function () {
 		//*=======***=======
 		startBananaGuard();
 
-		console.log(`%c Running Banana Version: ${version}`, 'color: yellow;font-size:13px', '(Latest Client)');
+		console.log(`%c Running Banana Version: ${version}`, "color: yellow;font-size:13px", "(Latest Client)");
 
 		//*=======***=======
 		let particleId = 0;
@@ -3989,44 +4146,60 @@ var app = (function () {
 		let isSettingsOpen = false;
 		let isUpgradeOpen = false;
 		let bananaElement;
+		let animateLabel = false;
 		let multiplier = 0;
 
 		let bananaParticles = [
-			'./bananaParticles/particle1.svg',
-			'./bananaParticles/particle2.svg',
-			'./bananaParticles/particle3.png'
+			"./bananaParticles/particle1.svg",
+			"./bananaParticles/particle2.svg",
+			"./bananaParticles/particle3.png"
 		];
 
 		// Audio
-		let clickSound = new Audio('./sfx/pop-banana.ogg');
+		let clickSound = new Audio("./sfx/pop-banana.ogg");
 
-		let upgradeSound = new Audio('./sfx/banana-upgrade.ogg');
-		let bgMusic = new Audio('./sfx/banana-forest-8bit.ogg');
-		bgMusic.volume = 0.3;
-		upgradeSound.volume = 0.5;
-		clickSound.volume = 0.5;
-		bgMusic.loop = true;
+		let upgradeSound = new Audio("./sfx/banana-upgrade.ogg");
+		clickSound.volume = 0;
 
-		let bananas,
-			bananasPerClick,
-			autoClickPower,
-			soundFX,
-			music,
-			upgrades,
-			activeEffects;
+		const musicPlaylist = [
+			{ src: "./bgm/bgm-1.mp3", volume: 0.3 },
+			{ src: "./bgm/bgm-0.ogg", volume: 0.3 },
+			{ src: "./bgm/bgm-2.mp3", volume: 0.3 },
+			{ src: "./bgm/bgm-3.mp3", volume: 0.3 }
+		];
+
+		let currentTrackIndex = 0;
+		let bgMusic = new Audio(musicPlaylist[currentTrackIndex].src);
+		bgMusic.volume = musicPlaylist[currentTrackIndex].volume;
+		bgMusic.loop = false;
+
+		bgMusic.addEventListener("ended", () => {
+			$$invalidate(19, currentTrackIndex = (currentTrackIndex + 1) % musicPlaylist.length);
+			$$invalidate(20, bgMusic.src = musicPlaylist[currentTrackIndex].src, bgMusic);
+			$$invalidate(20, bgMusic.volume = musicPlaylist[currentTrackIndex].volume, bgMusic);
+			if (music) bgMusic.play();
+		});
+
+		let bananas, bananasPerClick, autoClickPower, soundFX, music, upgrades;
 
 		playerData.subscribe(data => {
-			$$invalidate(6, bananas = data.bananas);
-			$$invalidate(7, bananasPerClick = data.bananasPerClick);
-			$$invalidate(8, autoClickPower = data.autoClickPower);
-			$$invalidate(9, soundFX = data.soundFX);
+			$$invalidate(7, bananas = data.bananas);
+			$$invalidate(8, bananasPerClick = data.bananasPerClick);
+			$$invalidate(9, autoClickPower = data.autoClickPower);
+			$$invalidate(10, soundFX = data.soundFX);
 			$$invalidate(0, music = data.music);
-			$$invalidate(5, multiplier = data.multiplier ?? 1);
+			$$invalidate(5, animateLabel = true);
+			$$invalidate(6, multiplier = data.multiplier ?? 1);
 
 			// Avoid updating the store here
-			$$invalidate(19, upgrades = data.upgrades);
+			$$invalidate(21, upgrades = data.upgrades);
 
-			activeEffects = data.activeEffects;
+			setTimeout(
+				() => {
+					$$invalidate(5, animateLabel = false);
+				},
+				500
+			);
 		});
 
 		// --- Click Banana ---
@@ -4036,7 +4209,13 @@ var app = (function () {
 				const newBananas = data.bananas + amountGained;
 				spawnParticles(event, 5, data.bananasPerClick);
 				animateClick();
-				if (data.soundFX) clickSound.cloneNode().play();
+
+				if (data.soundFX) {
+					const clickSoundClone = clickSound.cloneNode();
+					clickSoundClone.volume = 0.1;
+					clickSoundClone.play();
+				}
+
 				return { ...data, bananas: newBananas };
 			});
 		}
@@ -4066,16 +4245,16 @@ var app = (function () {
 
 				// Apply upgrade effect
 				switch (upgrade.type) {
-					case 'click':
+					case "click":
 						newData.bananasPerClick = (newData.bananasPerClick || 0) + upgrade.value;
 						break;
-					case 'auto':
+					case "auto":
 						newData.autoClickPower = (newData.autoClickPower || 0) + upgrade.value;
 						break;
-					case 'multiplier':
+					case "multiplier":
 						newData.multiplier = (newData.multiplier || 0) + upgrade.value;
 						break;
-					case 'special':
+					case "special":
 						triggerSpecialEffect(upgrade.label);
 						break;
 				}
@@ -4113,15 +4292,42 @@ var app = (function () {
 					);
 
 					animateClick();
-					if (data.soundFX) clickSound.cloneNode().play();
+
+					if (data.soundFX) {
+						const clickSoundClone = clickSound.cloneNode();
+						clickSoundClone.volume = 0.2;
+						clickSoundClone.play();
+					}
+
 					return { ...data, bananas: newBananas };
 				});
 			},
 			1000
 		);
 
+		// --- Visibility Change Handling ---
+		let animationFrameId = null;
+
+		function handleVisibilityChange() {
+			if (document.visibilityState === "hidden") {
+				// Pause particle updates
+				if (animationFrameId) {
+					cancelAnimationFrame(animationFrameId);
+					animationFrameId = null;
+				}
+			} else {
+				// Resume particle updates
+				if (!animationFrameId) {
+					animationFrameId = requestAnimationFrame(animate);
+				}
+			}
+		}
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+
 		// --- Particle System ---
 		function spawnParticles(event, count = 5, value = 1) {
+			if (particles.length >= MAX_PARTICLES) return;
 			const newParticles = [];
 
 			for (let i = 0; i < count; i++) {
@@ -4143,7 +4349,7 @@ var app = (function () {
 				});
 			}
 
-			$$invalidate(1, particles = [...particles, ...newParticles]);
+			$$invalidate(1, particles = [...particles, ...newParticles].slice(0, MAX_PARTICLES));
 		}
 
 		function updateParticles() {
@@ -4158,6 +4364,14 @@ var app = (function () {
 			}).filter(p => p.opacity > 0 && p.scale >= 0.1));
 		}
 
+		function animate() {
+			updateParticles();
+			animationFrameId = requestAnimationFrame(animate);
+		}
+
+		// Start the animation loop initially
+		animationFrameId = requestAnimationFrame(animate);
+
 		// --- UI ---
 		function openUpgrades() {
 			$$invalidate(3, isUpgradeOpen = !isUpgradeOpen);
@@ -4168,22 +4382,15 @@ var app = (function () {
 		}
 
 		function animateClick() {
-			$$invalidate(4, bananaElement.style.transform = 'scale(0.9)', bananaElement);
+			$$invalidate(4, bananaElement.style.transform = "scale(0.9)", bananaElement);
 
 			setTimeout(
 				() => {
-					$$invalidate(4, bananaElement.style.transform = 'scale(1)', bananaElement);
+					$$invalidate(4, bananaElement.style.transform = "scale(1)", bananaElement);
 				},
 				100
 			);
 		}
-
-		function animate() {
-			updateParticles();
-			requestAnimationFrame(animate);
-		}
-
-		animate();
 
 		function triggerSpecialEffect(label) {
 			if (label === "Banana Rain") {
@@ -4230,13 +4437,17 @@ var app = (function () {
 			version,
 			particleId,
 			particles,
+			MAX_PARTICLES,
 			isSettingsOpen,
 			isUpgradeOpen,
 			bananaElement,
+			animateLabel,
 			multiplier,
 			bananaParticles,
 			clickSound,
 			upgradeSound,
+			musicPlaylist,
+			currentTrackIndex,
 			bgMusic,
 			bananas,
 			bananasPerClick,
@@ -4244,17 +4455,18 @@ var app = (function () {
 			soundFX,
 			music,
 			upgrades,
-			activeEffects,
 			clickBanana,
 			buyUpgrade,
 			toggleSoundFX,
 			toggleMusic,
+			animationFrameId,
+			handleVisibilityChange,
 			spawnParticles,
 			updateParticles,
+			animate,
 			openUpgrades,
 			openSettings,
 			animateClick,
-			animate,
 			triggerSpecialEffect,
 			formatNumber,
 			mergedUpgrades
@@ -4266,19 +4478,21 @@ var app = (function () {
 			if ('isSettingsOpen' in $$props) $$invalidate(2, isSettingsOpen = $$props.isSettingsOpen);
 			if ('isUpgradeOpen' in $$props) $$invalidate(3, isUpgradeOpen = $$props.isUpgradeOpen);
 			if ('bananaElement' in $$props) $$invalidate(4, bananaElement = $$props.bananaElement);
-			if ('multiplier' in $$props) $$invalidate(5, multiplier = $$props.multiplier);
+			if ('animateLabel' in $$props) $$invalidate(5, animateLabel = $$props.animateLabel);
+			if ('multiplier' in $$props) $$invalidate(6, multiplier = $$props.multiplier);
 			if ('bananaParticles' in $$props) bananaParticles = $$props.bananaParticles;
 			if ('clickSound' in $$props) clickSound = $$props.clickSound;
 			if ('upgradeSound' in $$props) upgradeSound = $$props.upgradeSound;
-			if ('bgMusic' in $$props) $$invalidate(18, bgMusic = $$props.bgMusic);
-			if ('bananas' in $$props) $$invalidate(6, bananas = $$props.bananas);
-			if ('bananasPerClick' in $$props) $$invalidate(7, bananasPerClick = $$props.bananasPerClick);
-			if ('autoClickPower' in $$props) $$invalidate(8, autoClickPower = $$props.autoClickPower);
-			if ('soundFX' in $$props) $$invalidate(9, soundFX = $$props.soundFX);
+			if ('currentTrackIndex' in $$props) $$invalidate(19, currentTrackIndex = $$props.currentTrackIndex);
+			if ('bgMusic' in $$props) $$invalidate(20, bgMusic = $$props.bgMusic);
+			if ('bananas' in $$props) $$invalidate(7, bananas = $$props.bananas);
+			if ('bananasPerClick' in $$props) $$invalidate(8, bananasPerClick = $$props.bananasPerClick);
+			if ('autoClickPower' in $$props) $$invalidate(9, autoClickPower = $$props.autoClickPower);
+			if ('soundFX' in $$props) $$invalidate(10, soundFX = $$props.soundFX);
 			if ('music' in $$props) $$invalidate(0, music = $$props.music);
-			if ('upgrades' in $$props) $$invalidate(19, upgrades = $$props.upgrades);
-			if ('activeEffects' in $$props) activeEffects = $$props.activeEffects;
-			if ('mergedUpgrades' in $$props) $$invalidate(10, mergedUpgrades = $$props.mergedUpgrades);
+			if ('upgrades' in $$props) $$invalidate(21, upgrades = $$props.upgrades);
+			if ('animationFrameId' in $$props) animationFrameId = $$props.animationFrameId;
+			if ('mergedUpgrades' in $$props) $$invalidate(11, mergedUpgrades = $$props.mergedUpgrades);
 		};
 
 		if ($$props && "$$inject" in $$props) {
@@ -4286,18 +4500,26 @@ var app = (function () {
 		}
 
 		$$self.$$.update = () => {
-			if ($$self.$$.dirty[0] & /*upgrades*/ 524288) {
-				$$invalidate(10, mergedUpgrades = upgradesList.map(u => {
+			if ($$self.$$.dirty[0] & /*music, bgMusic, currentTrackIndex*/ 1572865) {
+				{
+					if (music) {
+						if (!bgMusic.src) {
+							$$invalidate(20, bgMusic.src = musicPlaylist[currentTrackIndex].src, bgMusic);
+							$$invalidate(20, bgMusic.volume = musicPlaylist[currentTrackIndex].volume, bgMusic);
+						}
+
+						bgMusic.play();
+					} else {
+						bgMusic.pause();
+					}
+				}
+			}
+
+			if ($$self.$$.dirty[0] & /*upgrades*/ 2097152) {
+				$$invalidate(11, mergedUpgrades = upgradesList.map(u => {
 					const owned = upgrades?.find(o => o.label === u.label);
 					return owned ? { ...u, cost: owned.cost } : u;
 				}));
-			}
-
-			if ($$self.$$.dirty[0] & /*music, bgMusic*/ 262145) {
-				// Play/pause music
-				{
-					if (music) bgMusic.play(); else bgMusic.pause();
-				}
 			}
 		};
 
@@ -4307,6 +4529,7 @@ var app = (function () {
 			isSettingsOpen,
 			isUpgradeOpen,
 			bananaElement,
+			animateLabel,
 			multiplier,
 			bananas,
 			bananasPerClick,
@@ -4320,6 +4543,7 @@ var app = (function () {
 			toggleMusic,
 			openUpgrades,
 			openSettings,
+			currentTrackIndex,
 			bgMusic,
 			upgrades,
 			div1_binding,

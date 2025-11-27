@@ -1,720 +1,969 @@
 <script>
-	import { slide } from 'svelte/transition';
-	import { playerData, upgradesList } from './stores/playerStore';
-	import { startBananaGuard } from './bananaGuard'
-	import  pkg from '../package.json';
+    import { slide } from "svelte/transition";
+    import { playerData, upgradesList } from "./stores/playerStore";
+    import { startBananaGuard } from "./bananaGuard";
+    import pkg from "../package.json";
 
-	const version = pkg.version;
-	
-	//*=======***=======
-	startBananaGuard();
-	console.log(`%c Running Banana Version: ${version}`, 'color: yellow;font-size:13px', '(Latest Client)');
-	//*=======***=======
+    const version = pkg.version;
 
-	let particleId = 0;
-	let particles = [];
-	let isSettingsOpen = false;
-	let isUpgradeOpen = false;
-	let bananaElement;
+    //*=======***=======
+    startBananaGuard();
+    console.log(
+        `%c Running Banana Version: ${version}`,
+        "color: yellow;font-size:13px",
+        "(Latest Client)",
+    );
+    //*=======***=======
 
-	let multiplier = 0;
+    let particleId = 0;
+    let particles = [];
+    const MAX_PARTICLES = 700;
+    let isSettingsOpen = false;
+    let isUpgradeOpen = false;
+    let bananaElement;
 
-	let bananaParticles = [
-		'./bananaParticles/particle1.svg',
-		'./bananaParticles/particle2.svg',
-		'./bananaParticles/particle3.png',
-	];
+    let animateLabel = false;
 
-	// Audio
-	let clickSound = new Audio('./sfx/pop-banana.ogg');
-	let upgradeSound = new Audio('./sfx/banana-upgrade.ogg');
-	let bgMusic = new Audio('./sfx/banana-forest-8bit.ogg');
+    let multiplier = 0;
 
-	bgMusic.volume = 0.3;
-	upgradeSound.volume = 0.5;
-	clickSound.volume = 0.5;
-	bgMusic.loop = true;
+    let bananaParticles = [
+        "./bananaParticles/particle1.svg",
+        "./bananaParticles/particle2.svg",
+        "./bananaParticles/particle3.png",
+    ];
 
-	let bananas, 
-		bananasPerClick, 
-		autoClickPower, 
-		soundFX, 
-		music, 
-		upgrades,
-		activeEffects;
+    // Audio
+    let clickSound = new Audio("./sfx/pop-banana.ogg");
+    let upgradeSound = new Audio("./sfx/banana-upgrade.ogg");
 
-	$: mergedUpgrades = upgradesList.map(u => {
-		const owned = upgrades?.find(o => o.label === u.label);
-		return owned ? { ...u, cost: owned.cost } : u;
-	});
+    clickSound.volume = 0;
 
-	playerData.subscribe(data => {
-		bananas = data.bananas;
-		bananasPerClick = data.bananasPerClick;
-		autoClickPower = data.autoClickPower;
-		soundFX = data.soundFX;
-		music = data.music;
+    const musicPlaylist = [
+        { src: "./bgm/bgm-1.mp3", volume: 0.3 },
+        { src: "./bgm/bgm-0.ogg", volume: 0.3 },
+        { src: "./bgm/bgm-2.mp3", volume: 0.3 },
+        { src: "./bgm/bgm-3.mp3", volume: 0.3 },
+    ];
 
-		multiplier = data.multiplier ?? 1;
+    let currentTrackIndex = 0;
+    let bgMusic = new Audio(musicPlaylist[currentTrackIndex].src);
+    bgMusic.volume = musicPlaylist[currentTrackIndex].volume;
+    bgMusic.loop = false;
 
-		// Avoid updating the store here
-		upgrades = data.upgrades;
-		activeEffects = data.activeEffects;
-	});
+    bgMusic.addEventListener("ended", () => {
+        currentTrackIndex = (currentTrackIndex + 1) % musicPlaylist.length;
+        bgMusic.src = musicPlaylist[currentTrackIndex].src;
+        bgMusic.volume = musicPlaylist[currentTrackIndex].volume;
+        if (music) bgMusic.play();
+    });
 
-	// Play/pause music
-	$: {
-		if (music) bgMusic.play();
-		else bgMusic.pause();
-	}
+    $: {
+        if (music) {
+            if (!bgMusic.src) {
+                bgMusic.src = musicPlaylist[currentTrackIndex].src;
+                bgMusic.volume = musicPlaylist[currentTrackIndex].volume;
+            }
+            bgMusic.play();
+        } else {
+            bgMusic.pause();
+        }
+    }
 
-	// --- Click Banana ---
-	function clickBanana(event) {
-		playerData.update(data => {
-			const amountGained = data.bananasPerClick * (data.multiplier || 1);
-			const newBananas = data.bananas + amountGained;
-			
-			spawnParticles(event, 5, data.bananasPerClick);
-			animateClick();
+    let bananas, bananasPerClick, autoClickPower, soundFX, music, upgrades;
 
-			if (data.soundFX) clickSound.cloneNode().play();
+    $: mergedUpgrades = upgradesList.map((u) => {
+        const owned = upgrades?.find((o) => o.label === u.label);
+        return owned ? { ...u, cost: owned.cost } : u;
+    });
 
-			return { ...data, bananas: newBananas };
-		});
-	}
+    playerData.subscribe((data) => {
+        bananas = data.bananas;
+        bananasPerClick = data.bananasPerClick;
+        autoClickPower = data.autoClickPower;
+        soundFX = data.soundFX;
+        music = data.music;
 
-	// --- Buy Upgrade ---
-	function buyUpgrade(upgrade) {
-		playerData.update(data => {
-			// Not enough bananas → ignore
-			if (data.bananas < upgrade.cost) return data;
+        animateLabel = true;
 
-			let newData = { ...data };
+        multiplier = data.multiplier ?? 1;
 
-			// Deduct cost
-			newData.bananas -= upgrade.cost;
+        // Avoid updating the store here
+        upgrades = data.upgrades;
 
-			// Increase cost by 25% after purchase
-			const newCost = Math.ceil(upgrade.cost * 1.25);
+        setTimeout(() => {
+            animateLabel = false;
+        }, 500);
+    });
 
-			// Update upgrade in data.upgrades array
-			const upIndex = newData.upgrades.findIndex(u => u.label === upgrade.label);
-			if (upIndex === -1) {
-				newData.upgrades.push({ label: upgrade.label, cost: newCost });
-			} else {
-				newData.upgrades[upIndex].cost = newCost;
-			}
+    // --- Click Banana ---
+    function clickBanana(event) {
+        playerData.update((data) => {
+            const amountGained = data.bananasPerClick * (data.multiplier || 1);
+            const newBananas = data.bananas + amountGained;
 
-			// Apply upgrade effect
-			switch (upgrade.type) {
-				case 'click':
-					newData.bananasPerClick = (newData.bananasPerClick || 0) + upgrade.value;
-					break;
-				case 'auto':
-					newData.autoClickPower = (newData.autoClickPower || 0) + upgrade.value;
-					break;
-				case 'multiplier':
-					newData.multiplier = (newData.multiplier || 0) + upgrade.value;
-					break;
-				case 'special':
-					triggerSpecialEffect(upgrade.label);
-					break;
-			}
+            spawnParticles(event, 5, data.bananasPerClick);
+            animateClick();
 
-			// Play upgrade sound
-			if (data.soundFX) upgradeSound.cloneNode().play();
+            if (data.soundFX) {
+                const clickSoundClone = clickSound.cloneNode();
+                clickSoundClone.volume = 0.1;
+                clickSoundClone.play();
+            }
 
-			return newData;
-		});
-	}
+            return { ...data, bananas: newBananas };
+        });
+    }
 
-	// --- Toggle Sound / Music ---
-	function toggleSoundFX(value) {
-		playerData.update(data => ({ ...data, soundFX: value }));
-	}
+    // --- Buy Upgrade ---
+    function buyUpgrade(upgrade) {
+        playerData.update((data) => {
+            // Not enough bananas → ignore
+            if (data.bananas < upgrade.cost) return data;
 
-	function toggleMusic(value) {
-		playerData.update(data => ({ ...data, music: value }));
-	}
+            let newData = { ...data };
 
-	// --- Auto-clicker ---
-	setInterval(() => {
-		playerData.update(data => {
-			if (data.autoClickPower <= 0) return data;
+            // Deduct cost
+            newData.bananas -= upgrade.cost;
 
-			const newBananas = data.bananas + data.autoClickPower;
-			spawnParticles({ clientX: window.innerWidth / 2, clientY: window.innerHeight / 2 }, 5, data.autoClickPower);
-			animateClick();
+            // Increase cost by 25% after purchase
+            const newCost = Math.ceil(upgrade.cost * 1.25);
 
-			if (data.soundFX) clickSound.cloneNode().play();
+            // Update upgrade in data.upgrades array
+            const upIndex = newData.upgrades.findIndex(
+                (u) => u.label === upgrade.label,
+            );
+            if (upIndex === -1) {
+                newData.upgrades.push({ label: upgrade.label, cost: newCost });
+            } else {
+                newData.upgrades[upIndex].cost = newCost;
+            }
 
-			return { ...data, bananas: newBananas };
-		});
-	}, 1000);
+            // Apply upgrade effect
+            switch (upgrade.type) {
+                case "click":
+                    newData.bananasPerClick =
+                        (newData.bananasPerClick || 0) + upgrade.value;
+                    break;
+                case "auto":
+                    newData.autoClickPower =
+                        (newData.autoClickPower || 0) + upgrade.value;
+                    break;
+                case "multiplier":
+                    newData.multiplier =
+                        (newData.multiplier || 0) + upgrade.value;
+                    break;
+                case "special":
+                    triggerSpecialEffect(upgrade.label);
+                    break;
+            }
 
-	// --- Particle System ---
-	function spawnParticles(event, count = 5, value = 1) {
-		const newParticles = [];
-		for (let i = 0; i < count; i++) {
-			const randomImg = bananaParticles[Math.floor(Math.random() * bananaParticles.length)];
-			newParticles.push({
-				id: particleId++,
-				x: event.clientX + (Math.random() * 30 - 15),
-				y: event.clientY + (Math.random() * 30 - 15),
-				vx: (Math.random() - 0.5) * 6,
-				vy: Math.random() * -6 - 2,
-				scale: 4 + Math.random() * 0.5,
-				scaleSpeed: 0.95 + Math.random() * 0.05,
-				opacity: 1,
-				opacitySpeed: 0.03 + Math.random() * 0.02,
-				rotation: Math.random() * 360,
-				rotationSpeed: (Math.random() - 0.5) * 10,
-				char: `<img src="${randomImg}" alt="🍌" draggable="false" style="width:20px; height:auto;" />`
-			});
-		}
-		particles = [...particles, ...newParticles];
-	}
+            // Play upgrade sound
+            if (data.soundFX) upgradeSound.cloneNode().play();
 
-	function updateParticles() {
-		particles = particles
-			.map(p => {
-				p.x += p.vx;
-				p.y += p.vy;
-				p.vy += 0.2;
-				p.scale *= p.scaleSpeed;
-				p.opacity -= p.opacitySpeed;
-				p.rotation += p.rotationSpeed;
-				return p;
-			})
-			.filter(p => p.opacity > 0 && p.scale >= 0.1);
-	}
+            return newData;
+        });
+    }
 
-	// --- UI ---
-	function openUpgrades() { isUpgradeOpen = !isUpgradeOpen; }
-	function openSettings() { isSettingsOpen = !isSettingsOpen; }
+    // --- Toggle Sound / Music ---
+    function toggleSoundFX(value) {
+        playerData.update((data) => ({ ...data, soundFX: value }));
+    }
 
-	function animateClick() {
-		bananaElement.style.transform = 'scale(0.9)';
-		setTimeout(() => { bananaElement.style.transform = 'scale(1)'; }, 100);
-	}
+    function toggleMusic(value) {
+        playerData.update((data) => ({ ...data, music: value }));
+    }
 
-	function animate() {
-		updateParticles();
-		requestAnimationFrame(animate);
-	}
-	animate();
+    // --- Auto-clicker ---
+    setInterval(() => {
+        playerData.update((data) => {
+            if (data.autoClickPower <= 0) return data;
 
-	function triggerSpecialEffect(label) {
-		if (label === "Banana Rain") {
-			for (let i = 0; i < 100; i++) {
-				spawnParticles({
-					clientX: Math.random() * window.innerWidth,
-					clientY: Math.random() * window.innerHeight
-				}, 1, 1000);
-			}
-		} else if (label === "Banana Universe") {
-			document.body.style.transition = "background 1s ease";
-			document.body.style.background = "linear-gradient(135deg, gold, orange, yellow)";
-			setTimeout(() => document.body.style.background = "", 10000)
-		}
-	}
+            const newBananas = data.bananas + data.autoClickPower;
+            spawnParticles(
+                {
+                    clientX: window.innerWidth / 2,
+                    clientY: window.innerHeight / 2,
+                },
+                5,
+                data.autoClickPower,
+            );
+            animateClick();
 
-	// --- Number Formatting ---
-	function formatNumber(n) {
-		if (n == null || Number.isNaN(n)) return '0';   // catch undefined / null
-		const suffixes = [
-			'', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'Sx', 'Sp', 'Oc',
-			'No', 'Dc', 'Ud', 'Dd', 'Td', 'QaQd', 'SxQd', 'SpQd', 'OcqD',
-			'NvD', 'Ugn', 'Tgn', 'Qagn', 'Sxgn', 'Spgn', 'Ocgn', 'Nvgn',
-			'Ce', 'Uce', 'Dce', 'Tce', 'Qace', 'Sxce', 'Spce', 'Occe',
-			'Nvce', 'Ct', 'Uct', 'Dct', 'Tct', 'Qact', 'Sxct', 'Spct',
-			'Occt', 'Nvct', 'Se', 'Use', 'Dse', 'Tse', 'Qase', 'Sxse',
-			'Spse', 'Ocse', 'Nvse', 'Og', 'Uog', 'Dog', 'Tog', 'Qaog',
-			'Sxog', 'Spog', 'Ocog', 'Nvog', 'Un', 'Dun', 'Tun', 'Qaun',
-			'Sxun', 'Spun', 'Ocun', 'Nvn', 'Tr', 'Utr', 'Dtr', 'Ttr',
-			'Qatr', 'Sxtr', 'Sptr', 'Octr', 'Nvtr', 'Qd', 'Uqd', 'Dqd',
-			'Tqd', 'QaQd', 'SxQd', 'SpQd', 'OcqD', 'NvQd', 'Qt', 'Uqt',
-			'Dqt', 'Tqt', 'Qaqt', 'Sxqt', 'Spqt', 'Ocqt', 'Nvqt', 'Sxqt',
-			'Spqt', 'Ocqt', 'Nvqt', 'Qn', 'Uqn', 'Dqn', 'Tqn', 'Qaqn',
-			'Sxn', 'Spn', 'Ocn', 'Nvn', 'Qag', 'Uqag', 'Dqag', 'Tqag',
-			'Qaqag', 'Sxqag', 'Spqag', 'Ocqag', 'Nvqag', 'Mul', 'Umu',
-			'Dmu', 'Tmu', 'Qamu', 'Sxmu', 'Spmu', 'Ocmu', 'Nvmu'
-		];
-		let i = 0;
-		while (n >= 1000 && i < suffixes.length - 1) { n /= 1000; i++; }
-		return (n % 1 === 0 ? n : Number(n.toFixed(2))) + suffixes[i];
-	}
+            if (data.soundFX) {
+                const clickSoundClone = clickSound.cloneNode();
+                clickSoundClone.volume = 0.2;
+                clickSoundClone.play();
+            }
+
+            return { ...data, bananas: newBananas };
+        });
+    }, 1000);
+
+    // --- Visibility Change Handling ---
+    let animationFrameId = null;
+
+    function handleVisibilityChange() {
+        if (document.visibilityState === "hidden") {
+            // Pause particle updates
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        } else {
+            // Resume particle updates
+            if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // --- Particle System ---
+    function spawnParticles(event, count = 5, value = 1) {
+        if (particles.length >= MAX_PARTICLES) return;
+
+        const newParticles = [];
+        for (let i = 0; i < count; i++) {
+            const randomImg =
+                bananaParticles[
+                    Math.floor(Math.random() * bananaParticles.length)
+                ];
+            newParticles.push({
+                id: particleId++,
+                x: event.clientX + (Math.random() * 30 - 15),
+                y: event.clientY + (Math.random() * 30 - 15),
+                vx: (Math.random() - 0.5) * 6,
+                vy: Math.random() * -6 - 2,
+                scale: 4 + Math.random() * 0.5,
+                scaleSpeed: 0.95 + Math.random() * 0.05,
+                opacity: 1,
+                opacitySpeed: 0.03 + Math.random() * 0.02,
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 10,
+                char: `<img src="${randomImg}" alt="🍌" draggable="false" style="width:20px; height:auto;" />`,
+            });
+        }
+        particles = [...particles, ...newParticles].slice(0, MAX_PARTICLES);
+    }
+
+    function updateParticles() {
+        particles = particles
+            .map((p) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.scale *= p.scaleSpeed;
+                p.opacity -= p.opacitySpeed;
+                p.rotation += p.rotationSpeed;
+                return p;
+            })
+            .filter((p) => p.opacity > 0 && p.scale >= 0.1);
+    }
+
+    function animate() {
+        updateParticles();
+        animationFrameId = requestAnimationFrame(animate);
+    }
+
+    // Start the animation loop initially
+    animationFrameId = requestAnimationFrame(animate);
+
+    // --- UI ---
+    function openUpgrades() {
+        isUpgradeOpen = !isUpgradeOpen;
+    }
+    function openSettings() {
+        isSettingsOpen = !isSettingsOpen;
+    }
+
+    function animateClick() {
+        bananaElement.style.transform = "scale(0.9)";
+        setTimeout(() => {
+            bananaElement.style.transform = "scale(1)";
+        }, 100);
+    }
+
+    function triggerSpecialEffect(label) {
+        if (label === "Banana Rain") {
+            for (let i = 0; i < 100; i++) {
+                spawnParticles(
+                    {
+                        clientX: Math.random() * window.innerWidth,
+                        clientY: Math.random() * window.innerHeight,
+                    },
+                    1,
+                    1000,
+                );
+            }
+        } else if (label === "Banana Universe") {
+            document.body.style.transition = "background 1s ease";
+            document.body.style.background =
+                "linear-gradient(135deg, gold, orange, yellow)";
+            setTimeout(() => (document.body.style.background = ""), 10000);
+        }
+    }
+
+    // --- Number Formatting ---
+    function formatNumber(n) {
+        if (n == null || Number.isNaN(n)) return "0"; // catch undefined / null
+        const suffixes = [
+            "",
+            "K",
+            "M",
+            "B",
+            "T",
+            "Q",
+            "Qi",
+            "Sx",
+            "Sp",
+            "Oc",
+            "No",
+            "Dc",
+            "Ud",
+            "Dd",
+            "Td",
+            "QaQd",
+            "SxQd",
+            "SpQd",
+            "OcqD",
+            "NvD",
+            "Ugn",
+            "Tgn",
+            "Qagn",
+            "Sxgn",
+            "Spgn",
+            "Ocgn",
+            "Nvgn",
+            "Ce",
+            "Uce",
+            "Dce",
+            "Tce",
+            "Qace",
+            "Sxce",
+            "Spce",
+            "Occe",
+            "Nvce",
+            "Ct",
+            "Uct",
+            "Dct",
+            "Tct",
+            "Qact",
+            "Sxct",
+            "Spct",
+            "Occt",
+            "Nvct",
+            "Se",
+            "Use",
+            "Dse",
+            "Tse",
+            "Qase",
+            "Sxse",
+            "Spse",
+            "Ocse",
+            "Nvse",
+            "Og",
+            "Uog",
+            "Dog",
+            "Tog",
+            "Qaog",
+            "Sxog",
+            "Spog",
+            "Ocog",
+            "Nvog",
+            "Un",
+            "Dun",
+            "Tun",
+            "Qaun",
+            "Sxun",
+            "Spun",
+            "Ocun",
+            "Nvn",
+            "Tr",
+            "Utr",
+            "Dtr",
+            "Ttr",
+            "Qatr",
+            "Sxtr",
+            "Sptr",
+            "Octr",
+            "Nvtr",
+            "Qd",
+            "Uqd",
+            "Dqd",
+            "Tqd",
+            "QaQd",
+            "SxQd",
+            "SpQd",
+            "OcqD",
+            "NvQd",
+            "Qt",
+            "Uqt",
+            "Dqt",
+            "Tqt",
+            "Qaqt",
+            "Sxqt",
+            "Spqt",
+            "Ocqt",
+            "Nvqt",
+            "Sxqt",
+            "Spqt",
+            "Ocqt",
+            "Nvqt",
+            "Qn",
+            "Uqn",
+            "Dqn",
+            "Tqn",
+            "Qaqn",
+            "Sxn",
+            "Spn",
+            "Ocn",
+            "Nvn",
+            "Qag",
+            "Uqag",
+            "Dqag",
+            "Tqag",
+            "Qaqag",
+            "Sxqag",
+            "Spqag",
+            "Ocqag",
+            "Nvqag",
+            "Mul",
+            "Umu",
+            "Dmu",
+            "Tmu",
+            "Qamu",
+            "Sxmu",
+            "Spmu",
+            "Ocmu",
+            "Nvmu",
+        ];
+        let i = 0;
+        while (n >= 1000 && i < suffixes.length - 1) {
+            n /= 1000;
+            i++;
+        }
+        return (n % 1 === 0 ? n : Number(n.toFixed(2))) + suffixes[i];
+    }
 </script>
 
 <main>
-	<div class="header">
-		<h1 class="title">
-			<img src="./logo.png" alt="🍌" draggable="false" style="width:200px; height:auto; vertical-align: middle; margin-right: 5px;" />
-			<span class="version">v{version}</span>
-		</h1>
-		<button class="menu" aria-label="Settings" on:click={openSettings}>
-			<i class="fa fa-gear"></i>
-		</button>
-	</div>
+    <div class="header">
+        <h1 class="title">
+            <img
+                src="./logo.png"
+                alt="🍌"
+                draggable="false"
+                style="width:200px; height:auto; vertical-align: middle; margin-right: 5px;"
+            />
+            <span class="version">v{version}</span>
+        </h1>
+        <button class="menu" aria-label="Settings" on:click={openSettings}>
+            <i class="fa fa-gear"></i>
+        </button>
+    </div>
 
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="game-area">
-		<span class="score-count">
-			<img src="./banana.png" alt="🍌" draggable="false" style="width:30px; height:auto; vertical-align: middle; margin-right: 5px;" />	 
-			{formatNumber(bananas)}
-		</span>
-		<!-- Central banana -->
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<div bind:this={bananaElement} class="banana-center" on:click={clickBanana}>
-			<img src="./bananaman.png" alt="🍌" draggable="false" />
-		</div>
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="game-area">
+        <span class="score-count" class:animate={animateLabel}>
+            <img
+                src="./banana.png"
+                alt="🍌"
+                draggable="false"
+                style="width:30px; height:auto; vertical-align: middle; margin-right: 5px;"
+            />
+            {formatNumber(bananas)}
+        </span>
+        <!-- Central banana -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div
+            bind:this={bananaElement}
+            class="banana-center"
+            on:click={clickBanana}
+        >
+            <img src="./bananaman.png" alt="🍌" draggable="false" />
+        </div>
 
-		<button class="upgrade-button" on:click={openUpgrades}>
-			{#if isUpgradeOpen}
-				Close Upgrades
-			{:else}
-				Upgrades
-			{/if}
-		</button>
-		<div class="buff-container">
-			<spna class="multipliers">x{formatNumber(multiplier)} Multiplier</spna>
-			<spna class="autoClickPower">+{formatNumber(autoClickPower)}/s (Auto)</spna>
-			<spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna>
-		</div>
-		<a href="https://github.com/cosmic-fi/BananaClicker" class="githublink" target="_blank" aria-label="Github"><i class="fa-brands fa-github"></i></a>
-	</div>
+        <button class="upgrade-button" on:click={openUpgrades}>
+            {#if isUpgradeOpen}
+                Close Upgrades
+            {:else}
+                Upgrades
+            {/if}
+        </button>
+        <div class="buff-container">
+            <spna class="multipliers"
+                >x{formatNumber(multiplier)} Multiplier</spna
+            >
+            <spna class="autoClickPower"
+                >+{formatNumber(autoClickPower)}/s (Auto)</spna
+            >
+            <spna class="clickBuff">+{formatNumber(bananasPerClick)}/Click</spna
+            >
+        </div>
+        <a
+            href="https://github.com/cosmic-fi/BananaClicker"
+            class="githublink"
+            target="_blank"
+            aria-label="Github"><i class="fa-brands fa-github"></i></a
+        >
+    </div>
 
-	<!-- Particle layer -->
-	<div class="particle-container">
-		{#each particles as p (p.id)}
-			<span 
-				class="particle"
-				style="
-					left: {p.x}px; 
-					top: {p.y}px; 
+    <!-- Particle layer -->
+    <div class="particle-container">
+        {#each particles as p (p.id)}
+            <span
+                class="particle"
+                style="
+					left: {p.x}px;
+					top: {p.y}px;
 					transform: rotate({p.rotation}deg) scale({p.scale});
 					opacity: {p.opacity};
-				">
-				{@html p.char}
-			</span>
-		{/each}
-	</div>
+				"
+            >
+                {@html p.char}
+            </span>
+        {/each}
+    </div>
 
-	<!-- Upgrades sidebar -->
-	{#if isUpgradeOpen}
-		<aside class="upgrades">
-			<div class="upgrade-wrapper" transition:slide>
-			<div class="upgrade-header">
-				<h2>Upgrades</h2>
-				<button class="upgrade-close-btn" aria-label="Close" on:click={openUpgrades}>
-				<i class="fa fa-xmark"></i>
-				</button>
-			</div>
-			<p>Click to buy, cost increases each purchase:</p>
-			<div class="upgrades-container">
-				{#each mergedUpgrades as upgrade}
-					<button 
-						on:click={() => buyUpgrade(upgrade)}
-						disabled={bananas < upgrade.cost}>
-						{upgrade.name} ({formatNumber(upgrade.cost)}) <img src="./banana.png" alt="🍌" draggable="false" style="width:15px; height:auto; vertical-align: middle; margin-left: 5px;" />
-					</button>
-				{/each}
-			</div>
-			<div class="upgrade-footer">
-				<span class="bperclick">+{formatNumber(bananasPerClick)}/Click</span>
-				<span>Total bananas: {formatNumber(bananas)}</span>
-			</div>
-			</div>
-		</aside>
-	{/if}
-	{#if isSettingsOpen}
-		<aside class="settings">
-			<div class="settings-wrapper" transition:slide>
-				<div class="settings-header">
-					<h2>Settings</h2>
-					<button class="settings-close-btn" aria-label="Close" on:click={openSettings}>
-						<i class="fa fa-xmark"></i>
-					</button>
-				</div>
+    <!-- Upgrades sidebar -->
+    {#if isUpgradeOpen}
+        <aside class="upgrades">
+            <div class="upgrade-wrapper" transition:slide>
+                <div class="upgrade-header">
+                    <h2>Upgrades</h2>
+                    <button
+                        class="upgrade-close-btn"
+                        aria-label="Close"
+                        on:click={openUpgrades}
+                    >
+                        <i class="fa fa-xmark"></i>
+                    </button>
+                </div>
+                <p>Click to buy, cost increases each purchase:</p>
+                <div class="upgrades-container">
+                    {#each mergedUpgrades as upgrade}
+                        <button
+                            on:click={() => buyUpgrade(upgrade)}
+                            disabled={bananas < upgrade.cost}
+                        >
+                            {upgrade.name} ({formatNumber(upgrade.cost)})
+                            <img
+                                src="./banana.png"
+                                alt="🍌"
+                                draggable="false"
+                                style="width:15px; height:auto; vertical-align: middle; margin-left: 5px;"
+                            />
+                        </button>
+                    {/each}
+                </div>
+                <div class="upgrade-footer">
+                    <span class="bperclick"
+                        >+{formatNumber(bananasPerClick)}/Click</span
+                    >
+                    <span>Total bananas: {formatNumber(bananas)}</span>
+                </div>
+            </div>
+        </aside>
+    {/if}
+    {#if isSettingsOpen}
+        <aside class="settings">
+            <div class="settings-wrapper" transition:slide>
+                <div class="settings-header">
+                    <h2>Settings</h2>
+                    <button
+                        class="settings-close-btn"
+                        aria-label="Close"
+                        on:click={openSettings}
+                    >
+                        <i class="fa fa-xmark"></i>
+                    </button>
+                </div>
 
-				<div class="settings-options">
-					<div class="setting-item">
-						<span>Sound FX</span>
-						<label class="toggle">
-							<input type="checkbox" checked={soundFX} on:change={e => toggleSoundFX(e.target.checked)} />
-							<span class="slider"></span>
-						</label>
-					</div>
+                <div class="settings-options">
+                    <div class="setting-item">
+                        <span>Sound FX</span>
+                        <label class="toggle">
+                            <input
+                                type="checkbox"
+                                checked={soundFX}
+                                on:change={(e) =>
+                                    toggleSoundFX(e.target.checked)}
+                            />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
 
-					<div class="setting-item">
-						<span>Music</span>
-						<label class="toggle">
-							<input type="checkbox" checked={music} on:change={e => toggleMusic(e.target.checked)} />
-							<span class="slider"></span>
-						</label>
-					</div>
-				</div>
-			</div>
-		</aside>
-	{/if}
+                    <div class="setting-item">
+                        <span>Music</span>
+                        <label class="toggle">
+                            <input
+                                type="checkbox"
+                                checked={music}
+                                on:change={(e) => toggleMusic(e.target.checked)}
+                            />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    {/if}
 </main>
 
 <style>
-	main {
-		font-family: "Comic Neue", monospace;
-		background: linear-gradient(to right, #fff8d6, #fffbe8, #fff8d6);
-		width: 550px;
-		display: flex;
-		flex-direction: column;
-		overflow: hidden;
-		position: relative;
-		border-inline: 2px dashed #f4d03f;
-		height: 100%;
-	}
+    main {
+        font-family: "Comic Neue", monospace;
+        background: linear-gradient(to right, #fff8d6, #fffbe8, #fff8d6);
+        width: 550px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+        border-inline: 2px dashed #f4d03f;
+        height: 100%;
+    }
 
-	.header {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		padding: 10px;
-		border-bottom: 2px dashed #f4d03f;
-	}
+    .header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        border-bottom: 2px dashed #f4d03f;
+    }
 
-	.menu {
-		font-size: 1.5rem;
-		background: none;
-		border: none;
-		cursor: pointer;
-		background-color: #ffe135;
-		display: flex;
-		justify-content: center;
-		margin: 0;
-		border-radius: 5px;
-		color: #584a12;
-		box-shadow: 0 0 0 2px #ffffff;
-	}
+    .menu {
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        background-color: #ffe135;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        border-radius: 5px;
+        color: #584a12;
+        box-shadow: 0 0 0 2px #ffffff;
+    }
 
-	.title {
-		font-size: 1.5rem;
-		padding: 0;
-		margin: 0;
-		color: #584a12;
-		display: flex;
-		font-weight: bolder;
-		flex-direction: row;
-		align-items: center;
-	}
+    .title {
+        font-size: 1.5rem;
+        padding: 0;
+        margin: 0;
+        color: #584a12;
+        display: flex;
+        font-weight: bolder;
+        flex-direction: row;
+        align-items: center;
+    }
 
-	.version {
-		font-size: 1rem;
-		color: #a09050;
-		margin-left: 0.5rem;
-	}
+    .version {
+        font-size: 1rem;
+        color: #a09050;
+        margin-left: 0.5rem;
+    }
 
-	.game-area {
-		display: flex;
-		gap: 3rem;
-		align-items: flex-start;
-		flex: 1;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-	}
+    .game-area {
+        display: flex;
+        gap: 3rem;
+        align-items: flex-start;
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
 
-	.score-count{
-		position: absolute;
-		top: 1rem;
-		display: flex;
-		align-items: center;
-		font-size: 2rem;
-		color: #584a12;
-		font-weight: bold;
-	}
+    .score-count {
+        position: absolute;
+        top: 1rem;
+        display: flex;
+        align-items: center;
+        font-size: 2rem;
+        color: #584a12;
+        font-weight: bolder;
+    }
 
-	.banana-center {
-		font-size: 10rem;
-		cursor: pointer;
-		user-select: none;
-		transition: transform 0.1s;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
+    .banana-center {
+        font-size: 10rem;
+        cursor: pointer !important;
+        user-select: none;
+        transition: transform 0.1s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-	.banana-center img {
-		width: 250px;
-		height: auto;
-	}
+    .banana-center img {
+        width: 250px;
+        height: auto;
+    }
 
-	.upgrade-button {
-		position: absolute;
-		bottom: 5px;
-		left: 10px;
-		padding: .8rem 1.2rem;
-		font-size: 1rem;
-		font-weight: 600;
-		border-radius: 8px;
-		border: none;
-		background-color: #ffe135;
-		cursor: pointer;
-		transition: transform 0.1s;
-		box-shadow: 0 0 0 2px #ffffff;
-	}
+    .upgrade-button {
+        position: absolute;
+        bottom: 5px;
+        left: 10px;
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        background-color: #ffe135;
+        cursor: pointer;
+        transition: transform 0.1s;
+        box-shadow: 0 0 0 2px #ffffff;
+    }
 
-	.buff-container{
-		position: relative;
-		padding: 2px;
-		display: flex;
-		flex-direction: column;
-		position: absolute;
-		left: 10px;
-		bottom: 70px;
-		font-weight: 600;
-		color: #584a12;
-		font-size: 1rem;
-	}
+    .buff-container {
+        position: relative;
+        padding: 2px;
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        left: 10px;
+        bottom: 70px;
+        font-weight: 600;
+        color: #584a12;
+        font-size: 1rem;
+    }
 
-	.githublink {
-		position: absolute;
-		bottom: 5px;
-		right: 10px;
-		font-size: 2rem;
-		color: #584a12;
-		text-decoration: none;
-	}
-	.upgrades {
-		display: flex;
-		position: absolute;
-		flex-direction: column;
-		width: 100%;
-		background: #fff6b825;
-		height: 100%;
-		align-items: center;
-		backdrop-filter: blur(2px);
-		z-index: 999;
-	}
+    .githublink {
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+        font-size: 2rem;
+        color: #584a12;
+        text-decoration: none;
+    }
+    .upgrades {
+        display: flex;
+        position: absolute;
+        flex-direction: column;
+        width: 100%;
+        background: #fff6b825;
+        height: 100%;
+        align-items: center;
+        backdrop-filter: blur(2px);
+        z-index: 999;
+    }
 
-	.upgrade-wrapper {
-		display: flex;
-		position: absolute;
-		flex-direction: column;
-		gap: 0.5rem;
-		width: calc(100% - 3rem);
-		bottom: -.4rem;
-		background: #fff5b8;
-		padding: 1rem;
-		padding-top: 0;
-		height: 80%;
-		border-radius: 12px;
-		border: 2px solid #f4d03f;
-	}
+    .upgrade-wrapper {
+        display: flex;
+        position: absolute;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: calc(100% - 3rem);
+        bottom: -0.4rem;
+        background: #fff5b8;
+        padding: 1rem;
+        padding-top: 0;
+        height: 80%;
+        border-radius: 12px;
+        border: 2px solid #f4d03f;
+    }
 
-	.upgrade-header{
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-		border-bottom: 1px dashed #f4d03f;
-	}
+    .upgrade-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed #f4d03f;
+    }
 
-	.upgrade-close-btn{
-		font-size: 1.2rem;
-		background: none;
-		border: none;
-		cursor: pointer;
-		background-color: #ffe135;
-		display: flex;
-		justify-content: center;
-		margin: 0;
-		border-radius: 5px;
-		color: #584a12;
-		box-shadow: 0 0 0 2px #ffffff;
-		padding: 0.8rem 1rem !important;
+    .upgrade-close-btn {
+        font-size: 1.2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        background-color: #ffe135;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        border-radius: 5px;
+        color: #584a12;
+        box-shadow: 0 0 0 2px #ffffff;
+        padding: 0.8rem 1rem !important;
+    }
+    .upgrades-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: hidden;
+        overflow-y: auto;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .upgrades button {
+        cursor: pointer;
+        padding: 1rem 0.5rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        background-color: #ffe135;
+        transition: transform 0.1s;
+        box-shadow: inset 0 0 0 2px #ffffff;
+    }
+    .upgrades button:active {
+        transform: scale(0.95);
+    }
+    .upgrades button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 
-	}
-	.upgrades-container {
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
-		overflow: hidden;
-		overflow-y: auto;
-		gap: 0.5rem;
-		margin-bottom: 0.5rem;
-	}
-	.upgrades button {
-		cursor: pointer;
-		padding: 1rem 0.5rem;
-		font-size: 1rem;
-		border-radius: 8px;
-		border: none;
-		background-color: #ffe135;
-		transition: transform 0.1s;
-		box-shadow: inset 0 0 0 2px #ffffff;
-	}
-	.upgrades button:active {
-		transform: scale(0.95);
-	}
-	.upgrades button:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+    .upgrade-footer {
+        /* margin-top: 1rem; */
+        border-top: 1px dashed #f4d03f;
+        padding-block: 0.5rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 
-	.upgrade-footer {
-		/* margin-top: 1rem; */
-		border-top: 1px dashed #f4d03f;
-		padding-block: 0.5rem;
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-	}
+    .bperclick {
+        font-weight: bold;
+        color: #584a12;
+    }
 
-	.bperclick {
-		font-weight: bold;
-		color: #584a12;
-	}
-	
-	.particle-container {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		pointer-events: none;
-		overflow: visible;
-	}
+    .particle-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        overflow: visible;
+    }
 
-	.particle {
-		position: absolute;
-		font-size: 1.5rem;
-		user-select: none;
-		will-change: transform, opacity;
-		color: #f5d800;
-		font-weight: bold;
-	}
+    .particle {
+        position: absolute;
+        font-size: 1.5rem;
+        user-select: none;
+        will-change: transform, opacity;
+        color: #f5d800;
+        font-weight: bold;
+    }
 
-	@media (max-width: 400px) {
-		main {
-			width: 98%;
-			border-inline: 1px dashed #f4d03f;
-		}
+    @media (max-width: 400px) {
+        main {
+            width: 98%;
+            border-inline: 1px dashed #f4d03f;
+        }
 
-		.title {
-			font-size: 1.2rem;
-		}
-	}
+        .title {
+            font-size: 1.2rem;
+        }
+    }
 
+    .settings {
+        display: flex;
+        position: absolute;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        background: #fff6b825;
+        height: 100%;
+        align-items: center;
+        backdrop-filter: blur(2px);
+        z-index: 999;
+    }
+    .settings-wrapper {
+        display: flex;
+        position: absolute;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: calc(100% - 3rem);
+        bottom: -0.4rem;
+        background: #fff5b8;
+        padding: 0.7rem;
+        padding-top: 0 !important;
+        height: 50%;
+        border-radius: 12px;
+        border: 2px solid #f4d03f;
+    }
 
-	.settings {
-		display: flex;
-		position: absolute;
-		flex-direction: column;
-		gap: 0.5rem;
-		width: 100%;
-		background: #fff6b825;
-		height: 100%;
-		align-items: center;
-		backdrop-filter: blur(2px);
-		z-index: 999;
-	}
-	.settings-wrapper {
-		display: flex;
-		position: absolute;
-		flex-direction: column;
-		gap: 0.5rem;
-		width: calc(100% - 3rem);
-		bottom: -.4rem;
-		background: #fff5b8;
-		padding: 0.7rem;
-		padding-top: 0 !important;
-		height: 50%;
-		border-radius: 12px;
-		border: 2px solid #f4d03f;
-	}
+    .settings-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed #f4d03f;
+    }
 
-	.settings-header {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-		border-bottom: 1px dashed #f4d03f;
-	}
+    .settings-close-btn {
+        font-size: 1.2rem;
+        background-color: #ffe135;
+        border: none;
+        border-radius: 5px;
+        color: #584a12;
+        box-shadow: 0 0 0 2px #ffffff;
+        cursor: pointer;
+        padding: 0.5rem 0.5rem;
+    }
 
-	.settings-close-btn {
-		font-size: 1.2rem;
-		background-color: #ffe135;
-		border: none;
-		border-radius: 5px;
-		color: #584a12;
-		box-shadow: 0 0 0 2px #ffffff;
-		cursor: pointer;
-		padding: 0.5rem 0.5rem;
-	}
+    .settings-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding-top: 1rem;
+        overflow: hidden;
+        overflow-y: auto;
+    }
 
-	.settings-options {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		padding-top: 1rem;
-		overflow: hidden;
-		overflow-y: auto;
-	}
+    .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.1rem;
+        color: #584a12;
+        font-weight: bold;
+    }
 
-	.setting-item {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		font-size: 1.1rem;
-		color: #584a12;
-		font-weight: bold;
-	}
+    /* Custom Toggle Switch */
+    .toggle {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
 
-	/* Custom Toggle Switch */
-	.toggle {
-		position: relative;
-		display: inline-block;
-		width: 50px;
-		height: 26px;
-	}
+    .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
 
-	.toggle input {
-		opacity: 0;
-		width: 0;
-		height: 0;
-	}
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #d1c47a;
+        border-radius: 34px;
+        transition: 0.3s;
+    }
 
-	.slider {
-		position: absolute;
-		cursor: pointer;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: #d1c47a;
-		border-radius: 34px;
-		transition: 0.3s;
-	}
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
 
-	.slider:before {
-		position: absolute;
-		content: "";
-		height: 20px;
-		width: 20px;
-		left: 3px;
-		bottom: 3px;
-		background-color: white;
-		border-radius: 50%;
-		transition: 0.3s;
-	}
+    input:checked + .slider {
+        background-color: #ffe135;
+    }
 
-	input:checked + .slider {
-		background-color: #ffe135;
-	}
-
-	input:checked + .slider:before {
-		transform: translateX(24px);
-	}
-
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
 </style>

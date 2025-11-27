@@ -1,31 +1,121 @@
-import { writable } from 'svelte/store';
-import SHA256 from 'crypto-js/sha256';
+import { writable } from "svelte/store";
+import SHA256 from "crypto-js/sha256";
 
 // ==========================
 // 🍌 Upgrade List
 // ==========================
 export const upgradesList = [
-  { name: "+1 per click", cost: 10, value: 1, label: "+1 per click", type: "click" },
-  { name: "+5 per click", cost: 75, value: 5, label: "+5 per click", type: "click" },
-  { name: "+10 per click", cost: 250, value: 10, label: "+10 per click", type: "click" },
-  { name: "+50 per click", cost: 1000, value: 50, label: "+50 per click", type: "click" },
-  { name: "+100 per click", cost: 5000, value: 100, label: "+100 per click", type: "click" },
+  {
+    name: "+1 per click",
+    cost: 10,
+    value: 1,
+    label: "+1 per click",
+    type: "click",
+  },
+  {
+    name: "+5 per click",
+    cost: 75,
+    value: 5,
+    label: "+5 per click",
+    type: "click",
+  },
+  {
+    name: "+10 per click",
+    cost: 250,
+    value: 10,
+    label: "+10 per click",
+    type: "click",
+  },
+  {
+    name: "+50 per click",
+    cost: 1000,
+    value: 50,
+    label: "+50 per click",
+    type: "click",
+  },
+  {
+    name: "+100 per click",
+    cost: 5000,
+    value: 100,
+    label: "+100 per click",
+    type: "click",
+  },
 
-  { name: "Auto Clicker +100/s", cost: 24000, value: 100, label: "Auto Clicker", type: "auto" },
-  { name: "Auto Clicker +500/s", cost: 100000, value: 500, label: "Auto Clicker", type: "auto" },
-  { name: "Super Auto Clicker +1k/s", cost: 250000, value: 1000, label: "Super Auto Clicker", type: "auto" },
-  { name: "Golden Auto Clicker +10k/s", cost: 850000, value: 10000, label: "Golden Auto Clicker", type: "auto" },
+  {
+    name: "Auto Clicker +100/s",
+    cost: 24000,
+    value: 100,
+    label: "+100 Auto Clicker",
+    type: "auto",
+  },
+  {
+    name: "Auto Clicker +500/s",
+    cost: 100000,
+    value: 500,
+    label: "+500 Auto Clicker",
+    type: "auto",
+  },
 
-  { name: "Mega Clicks +100k per click", cost: 5000000, value: 100000, label: "Mega Clicks", type: "click" },
+  {
+    name: "Super Auto Clicker +1k/s",
+    cost: 250000,
+    value: 1000,
+    label: "Super Auto Clicker",
+    type: "auto",
+  },
+  {
+    name: "Golden Auto Clicker +10k/s",
+    cost: 850000,
+    value: 10000,
+    label: "Golden Auto Clicker",
+    type: "auto",
+  },
 
-  { name: "Banana Magnet (x2 Clicks)", cost: 5000000, value: 2, label: "Banana Magnet", type: "multiplier" },
-  { name: "Golden Clicks (x5 Clicks)", cost: 7000000, value: 5, label: "Golden Clicks", type: "multiplier" },
+  {
+    name: "Mega Clicks +100k per click",
+    cost: 5000000,
+    value: 100000,
+    label: "Mega Clicks",
+    type: "click",
+  },
 
-  { name: "Banana Factory +200k/s", cost: 20000000, value: 200000, label: "Banana Factory", type: "auto" },
-  { name: "Ultra Auto Clicker +20M/s", cost: 75000000, value: 20000000, label: "Ultra Auto Clicker", type: "auto" },
-  { name: "OP Banana God +500M/s", cost: 15000000000000, value: 50000000, label: "Banana God", type: "auto" },
+  {
+    name: "Banana Magnet (x2 Clicks)",
+    cost: 5000000,
+    value: 2,
+    label: "Banana Magnet",
+    type: "multiplier",
+  },
+  {
+    name: "Golden Clicks (x5 Clicks)",
+    cost: 7000000,
+    value: 5,
+    label: "Golden Clicks",
+    type: "multiplier",
+  },
+
+  {
+    name: "Banana Factory +200k/s",
+    cost: 20000000,
+    value: 200000,
+    label: "Banana Factory",
+    type: "auto",
+  },
+  {
+    name: "Ultra Auto Clicker +20M/s",
+    cost: 75000000,
+    value: 20000000,
+    label: "Ultra Auto Clicker",
+    type: "auto",
+  },
+  {
+    name: "OP Banana God +500M/s",
+    cost: 15000000000000,
+    value: 50000000,
+    label: "Banana God",
+    type: "auto",
+  },
 ];
-
 
 // ==========================
 // 🍌 Default Player Save
@@ -40,9 +130,8 @@ const defaultData = {
   soundFX: true,
   music: true,
   upgrades: [],
-  activeEffects: {}
+  activeEffects: {},
 };
-
 
 // ==========================
 // 🍌 BananaGuard Hashing
@@ -50,7 +139,6 @@ const defaultData = {
 function peelBanana(data) {
   return SHA256(JSON.stringify(data)).toString();
 }
-
 
 // ==========================
 // 🍌 Load with BananaGuard
@@ -62,37 +150,92 @@ function BananaGuardLoad() {
 
     const parsed = JSON.parse(raw);
 
-    // Missing fields = invalid
-    if (!parsed.data || !parsed.bananaPeel) return defaultData;
+    // Check for missing fields
+    if (!parsed.data || !parsed.bananaPeel) {
+      console.warn(
+        "%c[🍌 BananaGuard] Missing fields in saved data. Resetting save!",
+        "color:red;font-size:16px",
+      );
+      return defaultData;
+    }
 
     // Validate integrity
     const expected = peelBanana(parsed.data);
-
     if (expected !== parsed.bananaPeel) {
-      console.warn("%c[🍌 BananaGuard] Tampering detected. Resetting save!", "color:red;font-size:16px");
+      console.warn(
+        "%c[🍌 BananaGuard] Tampering detected. Resetting save!",
+        "color:red;font-size:16px",
+      );
+      return defaultData;
+    }
+
+    // Ensure the saved data has all required fields
+    const requiredFields = [
+      "bananas",
+      "bananasPerClick",
+      "baseBananasPerClick",
+      "baseAutoClickPower",
+      "multiplier",
+      "autoClickPower",
+      "soundFX",
+      "music",
+      "upgrades",
+      "activeEffects",
+    ];
+    const hasAllFields = requiredFields.every((field) => field in parsed.data);
+
+    if (!hasAllFields) {
+      console.warn(
+        "%c[🍌 BananaGuard] Saved data is missing required fields. Resetting save!",
+        "color:red;font-size:16px",
+      );
       return defaultData;
     }
 
     // Verified
-    console.log("%c[🛡️ BananaGuard] Save integrity verified.", "color:#7CFC00;font-size:14px");
+    console.log(
+      "%c[🛡️ BananaGuard] Save integrity verified.",
+      "color:#7CFC00;font-size:14px",
+    );
 
     return parsed.data;
-
   } catch (err) {
     console.error("BananaGuard failed to load:", err);
     return defaultData;
   }
 }
 
-
 // ==========================
 // 🍌 Save with BananaGuard
 // ==========================
 function BananaGuardSave(data) {
   try {
+    // Ensure the data has all required fields
+    const requiredFields = [
+      "bananas",
+      "bananasPerClick",
+      "baseBananasPerClick",
+      "baseAutoClickPower",
+      "multiplier",
+      "autoClickPower",
+      "soundFX",
+      "music",
+      "upgrades",
+      "activeEffects",
+    ];
+    const hasAllFields = requiredFields.every((field) => field in data);
+
+    if (!hasAllFields) {
+      console.warn(
+        "%c[🍌 BananaGuard] Data is missing required fields. Not saving!",
+        "color:red;font-size:16px",
+      );
+      return;
+    }
+
     const sealedBanana = {
       data,
-      bananaPeel: peelBanana(data)
+      bananaPeel: peelBanana(data),
     };
 
     localStorage.setItem("bananaClicker", JSON.stringify(sealedBanana));
@@ -100,7 +243,6 @@ function BananaGuardSave(data) {
     console.error("BananaGuard failed to save:", err);
   }
 }
-
 
 // ==========================
 // 🍌 Writable Store
