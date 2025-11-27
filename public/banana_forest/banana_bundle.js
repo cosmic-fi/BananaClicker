@@ -3020,7 +3020,7 @@ var app = (function () {
 		return child_ctx;
 	}
 
-	// (492:12) {:else}
+	// (491:12) {:else}
 	function create_else_block(ctx) {
 		let t;
 
@@ -3042,14 +3042,14 @@ var app = (function () {
 			block,
 			id: create_else_block.name,
 			type: "else",
-			source: "(492:12) {:else}",
+			source: "(491:12) {:else}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (490:12) {#if isUpgradeOpen}
+	// (489:12) {#if isUpgradeOpen}
 	function create_if_block_2(ctx) {
 		let t;
 
@@ -3071,14 +3071,14 @@ var app = (function () {
 			block,
 			id: create_if_block_2.name,
 			type: "if",
-			source: "(490:12) {#if isUpgradeOpen}",
+			source: "(489:12) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (516:8) {#each particles as p (p.id)}
+	// (515:8) {#each particles as p (p.id)}
 	function create_each_block_1(key_1, ctx) {
 		let span;
 		let html_tag;
@@ -3098,7 +3098,7 @@ var app = (function () {
 				set_style(span, "top", /*p*/ ctx[41].y + "px");
 				set_style(span, "transform", "rotate(" + /*p*/ ctx[41].rotation + "deg) scale(" + /*p*/ ctx[41].scale + ")");
 				set_style(span, "opacity", /*p*/ ctx[41].opacity);
-				add_location(span, file, 516, 12, 14745);
+				add_location(span, file, 515, 12, 14744);
 				this.first = span;
 			},
 			m: function mount(target, anchor) {
@@ -3137,14 +3137,14 @@ var app = (function () {
 			block,
 			id: create_each_block_1.name,
 			type: "each",
-			source: "(516:8) {#each particles as p (p.id)}",
+			source: "(515:8) {#each particles as p (p.id)}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (532:4) {#if isUpgradeOpen}
+	// (531:4) {#if isUpgradeOpen}
 	function create_if_block_1(ctx) {
 		let aside;
 		let div3;
@@ -3210,26 +3210,26 @@ var app = (function () {
 				span1 = element("span");
 				t10 = text("Total bananas: ");
 				t11 = text(t11_value);
-				add_location(h2, file, 535, 20, 15242);
+				add_location(h2, file, 534, 20, 15241);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 541, 24, 15475);
+				add_location(i, file, 540, 24, 15474);
 				attr_dev(button, "class", "upgrade-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 536, 20, 15280);
+				add_location(button, file, 535, 20, 15279);
 				attr_dev(div0, "class", "upgrade-header svelte-1pcwqjd");
-				add_location(div0, file, 534, 16, 15193);
-				add_location(p_1, file, 544, 16, 15572);
+				add_location(div0, file, 533, 16, 15192);
+				add_location(p_1, file, 543, 16, 15571);
 				attr_dev(div1, "class", "upgrades-container svelte-1pcwqjd");
-				add_location(div1, file, 545, 16, 15639);
+				add_location(div1, file, 544, 16, 15638);
 				attr_dev(span0, "class", "bperclick svelte-1pcwqjd");
-				add_location(span0, file, 562, 20, 16448);
-				add_location(span1, file, 565, 20, 16584);
+				add_location(span0, file, 561, 20, 16447);
+				add_location(span1, file, 564, 20, 16583);
 				attr_dev(div2, "class", "upgrade-footer svelte-1pcwqjd");
-				add_location(div2, file, 561, 16, 16399);
+				add_location(div2, file, 560, 16, 16398);
 				attr_dev(div3, "class", "upgrade-wrapper svelte-1pcwqjd");
-				add_location(div3, file, 533, 12, 15130);
+				add_location(div3, file, 532, 12, 15129);
 				attr_dev(aside, "class", "upgrades svelte-1pcwqjd");
-				add_location(aside, file, 532, 8, 15093);
+				add_location(aside, file, 531, 8, 15092);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3331,14 +3331,14 @@ var app = (function () {
 			block,
 			id: create_if_block_1.name,
 			type: "if",
-			source: "(532:4) {#if isUpgradeOpen}",
+			source: "(531:4) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (547:20) {#each mergedUpgrades as upgrade}
+	// (546:20) {#each mergedUpgrades as upgrade}
 	function create_each_block(ctx) {
 		let button;
 		let t0_value = /*upgrade*/ ctx[38].name + "";
@@ -3374,10 +3374,10 @@ var app = (function () {
 				set_style(img, "height", "auto");
 				set_style(img, "vertical-align", "middle");
 				set_style(img, "margin-left", "5px");
-				add_location(img, file, 552, 28, 16013);
+				add_location(img, file, 551, 28, 16012);
 				button.disabled = button_disabled_value = /*bananas*/ ctx[7] < /*upgrade*/ ctx[38].cost;
 				attr_dev(button, "class", "svelte-1pcwqjd");
-				add_location(button, file, 547, 24, 15750);
+				add_location(button, file, 546, 24, 15749);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, button, anchor);
@@ -3416,14 +3416,14 @@ var app = (function () {
 			block,
 			id: create_each_block.name,
 			type: "each",
-			source: "(547:20) {#each mergedUpgrades as upgrade}",
+			source: "(546:20) {#each mergedUpgrades as upgrade}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (571:4) {#if isSettingsOpen}
+	// (570:4) {#if isSettingsOpen}
 	function create_if_block(ctx) {
 		let aside;
 		let div4;
@@ -3483,42 +3483,42 @@ var app = (function () {
 				input1 = element("input");
 				t9 = space();
 				span3 = element("span");
-				add_location(h2, file, 574, 20, 16889);
+				add_location(h2, file, 573, 20, 16888);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 580, 24, 17123);
+				add_location(i, file, 579, 24, 17122);
 				attr_dev(button, "class", "settings-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 575, 20, 16927);
+				add_location(button, file, 574, 20, 16926);
 				attr_dev(div0, "class", "settings-header svelte-1pcwqjd");
-				add_location(div0, file, 573, 16, 16839);
-				add_location(span0, file, 586, 24, 17323);
+				add_location(div0, file, 572, 16, 16838);
+				add_location(span0, file, 585, 24, 17322);
 				attr_dev(input0, "type", "checkbox");
 				input0.checked = /*soundFX*/ ctx[10];
 				attr_dev(input0, "class", "svelte-1pcwqjd");
-				add_location(input0, file, 588, 28, 17420);
+				add_location(input0, file, 587, 28, 17419);
 				attr_dev(span1, "class", "slider svelte-1pcwqjd");
-				add_location(span1, file, 594, 28, 17703);
+				add_location(span1, file, 593, 28, 17702);
 				attr_dev(label0, "class", "toggle svelte-1pcwqjd");
-				add_location(label0, file, 587, 24, 17369);
+				add_location(label0, file, 586, 24, 17368);
 				attr_dev(div1, "class", "setting-item svelte-1pcwqjd");
-				add_location(div1, file, 585, 20, 17272);
-				add_location(span2, file, 599, 24, 17864);
+				add_location(div1, file, 584, 20, 17271);
+				add_location(span2, file, 598, 24, 17863);
 				attr_dev(input1, "type", "checkbox");
 				input1.checked = /*music*/ ctx[0];
 				attr_dev(input1, "class", "svelte-1pcwqjd");
-				add_location(input1, file, 601, 28, 17958);
+				add_location(input1, file, 600, 28, 17957);
 				attr_dev(span3, "class", "slider svelte-1pcwqjd");
-				add_location(span3, file, 606, 28, 18201);
+				add_location(span3, file, 605, 28, 18200);
 				attr_dev(label1, "class", "toggle svelte-1pcwqjd");
-				add_location(label1, file, 600, 24, 17907);
+				add_location(label1, file, 599, 24, 17906);
 				attr_dev(div2, "class", "setting-item svelte-1pcwqjd");
-				add_location(div2, file, 598, 20, 17813);
+				add_location(div2, file, 597, 20, 17812);
 				attr_dev(div3, "class", "settings-options svelte-1pcwqjd");
-				add_location(div3, file, 584, 16, 17221);
+				add_location(div3, file, 583, 16, 17220);
 				attr_dev(div4, "class", "settings-wrapper svelte-1pcwqjd");
-				add_location(div4, file, 572, 12, 16775);
+				add_location(div4, file, 571, 12, 16774);
 				attr_dev(aside, "class", "settings svelte-1pcwqjd");
-				add_location(aside, file, 571, 8, 16738);
+				add_location(aside, file, 570, 8, 16737);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3602,7 +3602,7 @@ var app = (function () {
 			block,
 			id: create_if_block.name,
 			type: "if",
-			source: "(571:4) {#if isSettingsOpen}",
+			source: "(570:4) {#if isSettingsOpen}",
 			ctx
 		});
 
@@ -3746,18 +3746,18 @@ var app = (function () {
 				set_style(img0, "height", "auto");
 				set_style(img0, "vertical-align", "middle");
 				set_style(img0, "margin-right", "5px");
-				add_location(img0, file, 452, 12, 12532);
+				add_location(img0, file, 451, 12, 12531);
 				attr_dev(span0, "class", "version svelte-1pcwqjd");
-				add_location(span0, file, 458, 12, 12749);
+				add_location(span0, file, 457, 12, 12748);
 				attr_dev(h1, "class", "title svelte-1pcwqjd");
-				add_location(h1, file, 451, 8, 12501);
+				add_location(h1, file, 450, 8, 12500);
 				attr_dev(i0, "class", "fa fa-gear");
-				add_location(i0, file, 461, 12, 12891);
+				add_location(i0, file, 460, 12, 12890);
 				attr_dev(button0, "class", "menu svelte-1pcwqjd");
 				attr_dev(button0, "aria-label", "Settings");
-				add_location(button0, file, 460, 8, 12811);
+				add_location(button0, file, 459, 8, 12810);
 				attr_dev(div0, "class", "header svelte-1pcwqjd");
-				add_location(div0, file, 450, 4, 12472);
+				add_location(div0, file, 449, 4, 12471);
 				if (!src_url_equal(img1.src, img1_src_value = "./banana.png")) attr_dev(img1, "src", img1_src_value);
 				attr_dev(img1, "alt", "🍌");
 				attr_dev(img1, "draggable", "false");
@@ -3765,40 +3765,40 @@ var app = (function () {
 				set_style(img1, "height", "auto");
 				set_style(img1, "vertical-align", "middle");
 				set_style(img1, "margin-right", "5px");
-				add_location(img1, file, 468, 12, 13115);
+				add_location(img1, file, 467, 12, 13114);
 				attr_dev(span1, "class", "score-count svelte-1pcwqjd");
 				toggle_class(span1, "animate", /*animateLabel*/ ctx[5]);
-				add_location(span1, file, 467, 8, 13047);
+				add_location(span1, file, 466, 8, 13046);
 				if (!src_url_equal(img2.src, img2_src_value = "./bananaman.png")) attr_dev(img2, "src", img2_src_value);
 				attr_dev(img2, "alt", "🍌");
 				attr_dev(img2, "draggable", "false");
 				attr_dev(img2, "class", "svelte-1pcwqjd");
-				add_location(img2, file, 485, 12, 13744);
+				add_location(img2, file, 484, 12, 13743);
 				attr_dev(div1, "class", "banana-center svelte-1pcwqjd");
-				add_location(div1, file, 480, 8, 13610);
+				add_location(div1, file, 479, 8, 13609);
 				attr_dev(button1, "class", "upgrade-button svelte-1pcwqjd");
-				add_location(button1, file, 488, 8, 13825);
+				add_location(button1, file, 487, 8, 13824);
 				attr_dev(spna0, "class", "multipliers");
-				add_location(spna0, file, 496, 12, 14074);
+				add_location(spna0, file, 495, 12, 14073);
 				attr_dev(spna1, "class", "autoClickPower");
-				add_location(spna1, file, 499, 12, 14188);
+				add_location(spna1, file, 498, 12, 14187);
 				attr_dev(spna2, "class", "clickBuff");
-				add_location(spna2, file, 502, 12, 14307);
+				add_location(spna2, file, 501, 12, 14306);
 				attr_dev(div2, "class", "buff-container svelte-1pcwqjd");
-				add_location(div2, file, 495, 8, 14033);
+				add_location(div2, file, 494, 8, 14032);
 				attr_dev(i1, "class", "fa-brands fa-github");
-				add_location(i1, file, 509, 32, 14569);
+				add_location(i1, file, 508, 32, 14568);
 				attr_dev(a, "href", "https://github.com/cosmic-fi/BananaClicker");
 				attr_dev(a, "class", "githublink svelte-1pcwqjd");
 				attr_dev(a, "target", "_blank");
 				attr_dev(a, "aria-label", "Github");
-				add_location(a, file, 505, 8, 14413);
+				add_location(a, file, 504, 8, 14412);
 				attr_dev(div3, "class", "game-area svelte-1pcwqjd");
-				add_location(div3, file, 466, 4, 13015);
+				add_location(div3, file, 465, 4, 13014);
 				attr_dev(div4, "class", "particle-container svelte-1pcwqjd");
-				add_location(div4, file, 514, 4, 14662);
+				add_location(div4, file, 513, 4, 14661);
 				attr_dev(main, "class", "svelte-1pcwqjd");
-				add_location(main, file, 449, 0, 12461);
+				add_location(main, file, 448, 0, 12460);
 			},
 			l: function claim(nodes) {
 				throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -4188,18 +4188,10 @@ var app = (function () {
 			$$invalidate(9, autoClickPower = data.autoClickPower);
 			$$invalidate(10, soundFX = data.soundFX);
 			$$invalidate(0, music = data.music);
-			$$invalidate(5, animateLabel = true);
 			$$invalidate(6, multiplier = data.multiplier ?? 1);
 
 			// Avoid updating the store here
 			$$invalidate(21, upgrades = data.upgrades);
-
-			setTimeout(
-				() => {
-					$$invalidate(5, animateLabel = false);
-				},
-				500
-			);
 		});
 
 		// --- Click Banana ---
@@ -4389,6 +4381,15 @@ var app = (function () {
 					$$invalidate(4, bananaElement.style.transform = "scale(1)", bananaElement);
 				},
 				100
+			);
+
+			$$invalidate(5, animateLabel = true);
+
+			setTimeout(
+				() => {
+					$$invalidate(5, animateLabel = false);
+				},
+				500
 			);
 		}
 

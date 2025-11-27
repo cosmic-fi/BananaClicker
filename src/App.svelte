@@ -83,16 +83,10 @@
         soundFX = data.soundFX;
         music = data.music;
 
-        animateLabel = true;
-
         multiplier = data.multiplier ?? 1;
 
         // Avoid updating the store here
         upgrades = data.upgrades;
-
-        setTimeout(() => {
-            animateLabel = false;
-        }, 500);
     });
 
     // --- Click Banana ---
@@ -282,6 +276,11 @@
         setTimeout(() => {
             bananaElement.style.transform = "scale(1)";
         }, 100);
+        animateLabel = true;
+
+        setTimeout(() => {
+            animateLabel = false;
+        }, 500);
     }
 
     function triggerSpecialEffect(label) {
