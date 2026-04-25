@@ -35,9 +35,13 @@
 
     // Audio
     let clickSound = new Audio("./sfx/pop-banana.ogg");
-    let upgradeSound = new Audio("./sfx/banana-upgrade.ogg");
+    let upgradeSound = new Audio("./sfx/click-sfx.wav");
+    let uiClickSound = new Audio("./sfx/click-sfx.wav");
+
 
     clickSound.volume = 0;
+    upgradeSound.volume = 0.15;
+    uiClickSound.volume = 0.15;
 
     const musicPlaylist = [
         { src: "./bgm/bgm-1.mp3", volume: 0.1 },
@@ -216,6 +220,29 @@
     }
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // --- Global UI Click Sound ---
+    function handleGlobalClick(event) {
+        if (!soundFX) return;
+
+        // Ignore clicks on the main banana (handled in clickBanana)
+        if (event.target.closest(".banana-center")) return;
+
+        // Play sound for buttons, links, and toggles
+        if (
+            event.target.closest("button") ||
+            event.target.closest("a") ||
+            event.target.closest(".toggle") ||
+            event.target.closest(".setting-item")
+        ) {
+            const sound = uiClickSound.cloneNode();
+            sound.volume = 0.15;
+            sound.play();
+        }
+    }
+
+    document.addEventListener("click", handleGlobalClick);
+
 
     // --- Particle System ---
     function spawnParticles(event, count = 5, value = 1) {

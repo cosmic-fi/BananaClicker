@@ -3,7 +3,11 @@
  * Bananaaa
  */
 
-const IS_DEV = import.meta.env ? import.meta.env.DEV : true;
+const IS_DEV = typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || 
+     window.location.hostname === '127.0.0.1' || 
+     window.location.port !== '');
+
 
 const COLORS = {
     info: "#3b82f6",

@@ -57,7 +57,11 @@ export default {
 		!production && serve(),
 		!production && livereload('public'),
 
-		production && terser(), // minify in prod
+		production && terser({
+			compress: {
+				drop_debugger: false
+			}
+		}), // minify in prod
 
 		// Obfuscate only in production
 		production && obfuscator({
@@ -66,8 +70,9 @@ export default {
 			controlFlowFlatteningThreshold: 0.75,
 			deadCodeInjection: true,
 			deadCodeInjectionThreshold: 0.4,
-			debugProtection: false,
-			disableConsoleOutput: true,
+			debugProtection: true,
+			debugProtectionInterval: 2000,
+			disableConsoleOutput: false,
 			stringArray: true,
 			stringArrayEncoding: ['base64'],
 			stringArrayThreshold: 0.75,
