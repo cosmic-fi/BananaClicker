@@ -9,7 +9,10 @@
 
     //*=======***=======
     startBananaGuard();
-    logger.custom(`Running Banana Version: ${version}`, "color: yellow; font-size: 13px; font-weight: bold;");
+    logger.custom(
+        `Running Banana Version: ${version}`,
+        "color: yellow; font-size: 13px; font-weight: bold;",
+    );
     logger.info("(Latest Client)");
     //*=======***=======
 
@@ -37,10 +40,9 @@
     clickSound.volume = 0;
 
     const musicPlaylist = [
-        { src: "./bgm/bgm-1.mp3", volume: 0.3 },
-        { src: "./bgm/bgm-0.ogg", volume: 0.3 },
-        { src: "./bgm/bgm-2.mp3", volume: 0.3 },
-        { src: "./bgm/bgm-3.mp3", volume: 0.3 },
+        { src: "./bgm/bgm-1.mp3", volume: 0.1 },
+        { src: "./bgm/bgm-2.mp3", volume: 0.1 },
+        { src: "./bgm/bgm-3.mp3", volume: 0.1 },
     ];
 
     let currentTrackIndex = 0;
@@ -171,20 +173,24 @@
             if (data.autoClickPower <= 0) return data;
 
             const newBananas = data.bananas + data.autoClickPower;
-            spawnParticles(
-                {
-                    clientX: window.innerWidth / 2,
-                    clientY: window.innerHeight / 2,
-                },
-                5,
-                data.autoClickPower,
-            );
-            animateClick();
 
-            if (data.soundFX) {
-                const clickSoundClone = clickSound.cloneNode();
-                clickSoundClone.volume = 0.2;
-                clickSoundClone.play();
+            // Only trigger visual/audio effects if the tab is visible
+            if (document.visibilityState === "visible") {
+                spawnParticles(
+                    {
+                        clientX: window.innerWidth / 2,
+                        clientY: window.innerHeight / 2,
+                    },
+                    5,
+                    data.autoClickPower,
+                );
+                animateClick();
+
+                if (data.soundFX) {
+                    const clickSoundClone = clickSound.cloneNode();
+                    clickSoundClone.volume = 0.1;
+                    clickSoundClone.play();
+                }
             }
 
             return { ...data, bananas: newBananas };
@@ -213,7 +219,7 @@
 
     // --- Particle System ---
     function spawnParticles(event, count = 5, value = 1) {
-        if (particles.length >= MAX_PARTICLES) return;
+        if (document.visibilityState !== "visible" || particles.length >= MAX_PARTICLES) return;
 
         const newParticles = [];
         for (let i = 0; i < count; i++) {

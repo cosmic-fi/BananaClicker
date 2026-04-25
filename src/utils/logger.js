@@ -1,6 +1,6 @@
 /**
  * Premium Logger for BananaClicker
- * Features: Styled outputs, log levels, and production silencing.
+ * Bananaaa
  */
 
 const IS_DEV = import.meta.env ? import.meta.env.DEV : true;
