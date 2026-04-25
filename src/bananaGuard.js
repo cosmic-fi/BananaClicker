@@ -1,4 +1,6 @@
 import SHA256 from "crypto-js/sha256";
+import logger from "./utils/logger";
+
 
 const SAVE_KEY = "bananaClicker";
 const HONEYPOT_KEY = "bananaClicker_cheat_detect";
@@ -18,13 +20,13 @@ export function verifyBananaSave() {
 
         const newHash = peelBanana(parsed.data);
         if (newHash !== parsed.bananaPeel) {
-            console.warn("%c[🍌 BananaGuard] Hash mismatch: tampering detected!", "color:red;font-size:16px");
+            logger.warn("Hash mismatch: tampering detected!");
             return { ok: false };
         }
 
         return { ok: true };
     } catch (e) {
-        console.error("[🍌 BananaGuard] Failed to verify save:", e);
+        logger.error("Failed to verify save:", e);
         return { ok: false };
     }
 }
@@ -47,7 +49,7 @@ function deployHoneyPot() {
 function checkHoneyPot() {
     const trap = localStorage.getItem(HONEYPOT_KEY);
     if (trap !== HONEYPOT_VALUE) {
-        console.warn("%c[🍌 BananaGuard] Honeypot triggered: Cheater detected!", "color:red;font-size:22px");
+        logger.warn("Honeypot triggered: Cheater detected!");
         return true;
     }
     return false;
@@ -60,7 +62,7 @@ function detectDevtools() {
         const start = performance.now();
         debugger; 
         if (performance.now() - start > threshold) {
-            console.warn("%c[🍌 BananaGuard] DevTools detected!", "color:orange;font-size:18px");
+            logger.warn("DevTools detected!");
         }
     }, 800);
 }
@@ -68,7 +70,7 @@ function detectDevtools() {
 function listenToStorage() {
     window.addEventListener("storage", (event) => {
         if (event.key === SAVE_KEY) {
-            console.warn("%c[🍌 BananaGuard] External save modification detected!", "color:red;font-size:18px");
+            logger.warn("External save modification detected!");
             location.reload();
         }
     });
@@ -83,7 +85,7 @@ function liveBananaScan() {
             const parsed = JSON.parse(raw);
 
             if (peelBanana(parsed.data) !== parsed.bananaPeel) {
-                console.warn("%c[🍌 BananaGuard] Live tamper detected!", "color:red;font-size:20px");
+                logger.warn("Live tamper detected!");
                 localStorage.removeItem(SAVE_KEY);
                 localStorage.removeItem(HONEYPOT_KEY);
                 location.reload();
@@ -96,15 +98,15 @@ function liveBananaScan() {
             }
 
         } catch (e) {
-            console.error("[🍌 BananaGuard] LiveScan error:", e);
+            logger.error("LiveScan error:", e);
         }
     }, 1500);
 }
 
 function bananaBanner() {
-    console.log("%c 🍌 BananaGuard Activated", "color:yellow;font-size:26px;font-weight:bold;");
-    console.log("%c[🛡️ BananaGuard] Status: Running...", "color:#ffcc00;font-size:16px");
-    console.log("%cKeep your bananas safe from cheaters 😎", "color:#ffaa00;font-size:14px");
+    logger.banana("BananaGuard Activated");
+    logger.info("Status: Running...");
+    logger.info("Keep your bananas safe from cheaters 😎");
 }
 
 export function startBananaGuard() {

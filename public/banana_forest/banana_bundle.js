@@ -109,15 +109,6 @@ var app = (function () {
 		};
 	}
 
-	/** @type {typeof globalThis} */
-	const globals =
-		typeof window !== 'undefined'
-			? window
-			: typeof globalThis !== 'undefined'
-			? globalThis
-			: // @ts-ignore Node typings have this
-			  global;
-
 	/**
 	 * @param {Node} target
 	 * @param {Node} node
@@ -2632,6 +2623,91 @@ var app = (function () {
 	var sha256Exports = sha256.exports;
 	var SHA256 = /*@__PURE__*/getDefaultExportFromCjs(sha256Exports);
 
+	/**
+	 * Premium Logger for BananaClicker
+	 * Features: Styled outputs, log levels, and production silencing.
+	 */
+
+	const IS_DEV = undefined ? undefined.DEV : true;
+
+	const COLORS = {
+	    info: "#3b82f6",
+	    success: "#10b981",
+	    warn: "#f59e0b",
+	    error: "#ef4444",
+	    debug: "#8b5cf6",
+	    banana: "#fbbf24"
+	};
+
+	const ICONS = {
+	    info: "ℹ️",
+	    success: "✅",
+	    warn: "⚠️",
+	    error: "❌",
+	    debug: "🔍",
+	    banana: "🍌"
+	};
+
+	class Logger {
+	    constructor(prefix = "BananaClicker") {
+	        this.prefix = prefix;
+	    }
+
+	    _format(level, message) {
+	        const color = COLORS[level] || COLORS.info;
+	        const icon = ICONS[level] || ICONS.info;
+	        return [
+	            `%c${icon} [${this.prefix}] %c${message}`,
+	            `color: ${color}; font-weight: bold;`,
+	            "color: inherit; font-weight: normal;"
+	        ];
+	    }
+
+	    info(message, ...args) {
+	        if (!IS_DEV) return;
+	        const [fmt, ...styles] = this._format("info", message);
+	        console.log(fmt, ...styles, ...args);
+	    }
+
+	    success(message, ...args) {
+	        if (!IS_DEV) return;
+	        const [fmt, ...styles] = this._format("success", message);
+	        console.log(fmt, ...styles, ...args);
+	    }
+
+	    warn(message, ...args) {
+	        const [fmt, ...styles] = this._format("warn", message);
+	        console.warn(fmt, ...styles, ...args);
+	    }
+
+	    error(message, ...args) {
+	        const [fmt, ...styles] = this._format("error", message);
+	        console.error(fmt, ...styles, ...args);
+	    }
+
+	    debug(message, ...args) {
+	        if (!IS_DEV) return;
+	        const [fmt, ...styles] = this._format("debug", message);
+	        console.debug(fmt, ...styles, ...args);
+	    }
+
+	    banana(message, ...args) {
+	        if (!IS_DEV) return;
+	        const [fmt, ...styles] = this._format("banana", message);
+	        console.log(fmt, ...styles, ...args);
+	    }
+
+	    /**
+	     * Raw log with custom styling
+	     */
+	    custom(message, style, ...args) {
+	        if (!IS_DEV) return;
+	        console.log(`%c[${this.prefix}] ${message}`, style, ...args);
+	    }
+	}
+
+	const logger = new Logger();
+
 	// ==========================
 	// 🍌 Upgrade List
 	// ==========================
@@ -2783,20 +2859,14 @@ var app = (function () {
 
 	    // Check for missing fields
 	    if (!parsed.data || !parsed.bananaPeel) {
-	      console.warn(
-	        "%c[🍌 BananaGuard] Missing fields in saved data. Resetting save!",
-	        "color:red;font-size:16px",
-	      );
+	      logger.warn("Missing fields in saved data. Resetting save!");
 	      return defaultData;
 	    }
 
 	    // Validate integrity
 	    const expected = peelBanana$1(parsed.data);
 	    if (expected !== parsed.bananaPeel) {
-	      console.warn(
-	        "%c[🍌 BananaGuard] Tampering detected. Resetting save!",
-	        "color:red;font-size:16px",
-	      );
+	      logger.warn("Tampering detected. Resetting save!");
 	      return defaultData;
 	    }
 
@@ -2816,22 +2886,16 @@ var app = (function () {
 	    const hasAllFields = requiredFields.every((field) => field in parsed.data);
 
 	    if (!hasAllFields) {
-	      console.warn(
-	        "%c[🍌 BananaGuard] Saved data is missing required fields. Resetting save!",
-	        "color:red;font-size:16px",
-	      );
+	      logger.warn("Saved data is missing required fields. Resetting save!");
 	      return defaultData;
 	    }
 
 	    // Verified
-	    console.log(
-	      "%c[🛡️ BananaGuard] Save integrity verified.",
-	      "color:#7CFC00;font-size:14px",
-	    );
+	    logger.success("Save integrity verified.");
 
 	    return parsed.data;
 	  } catch (err) {
-	    console.error("BananaGuard failed to load:", err);
+	    logger.error("BananaGuard failed to load:", err);
 	    return defaultData;
 	  }
 	}
@@ -2857,10 +2921,7 @@ var app = (function () {
 	    const hasAllFields = requiredFields.every((field) => field in data);
 
 	    if (!hasAllFields) {
-	      console.warn(
-	        "%c[🍌 BananaGuard] Data is missing required fields. Not saving!",
-	        "color:red;font-size:16px",
-	      );
+	      logger.warn("Data is missing required fields. Not saving!");
 	      return;
 	    }
 
@@ -2871,7 +2932,7 @@ var app = (function () {
 
 	    localStorage.setItem("bananaClicker", JSON.stringify(sealedBanana));
 	  } catch (err) {
-	    console.error("BananaGuard failed to save:", err);
+	    logger.error("BananaGuard failed to save:", err);
 	  }
 	}
 
@@ -2899,7 +2960,7 @@ var app = (function () {
 	function checkHoneyPot() {
 	    const trap = localStorage.getItem(HONEYPOT_KEY);
 	    if (trap !== HONEYPOT_VALUE) {
-	        console.warn("%c[🍌 BananaGuard] Honeypot triggered: Cheater detected!", "color:red;font-size:22px");
+	        logger.warn("Honeypot triggered: Cheater detected!");
 	        return true;
 	    }
 	    return false;
@@ -2912,7 +2973,7 @@ var app = (function () {
 	        const start = performance.now();
 	        debugger; 
 	        if (performance.now() - start > threshold) {
-	            console.warn("%c[🍌 BananaGuard] DevTools detected!", "color:orange;font-size:18px");
+	            logger.warn("DevTools detected!");
 	        }
 	    }, 800);
 	}
@@ -2920,7 +2981,7 @@ var app = (function () {
 	function listenToStorage() {
 	    window.addEventListener("storage", (event) => {
 	        if (event.key === SAVE_KEY) {
-	            console.warn("%c[🍌 BananaGuard] External save modification detected!", "color:red;font-size:18px");
+	            logger.warn("External save modification detected!");
 	            location.reload();
 	        }
 	    });
@@ -2935,7 +2996,7 @@ var app = (function () {
 	            const parsed = JSON.parse(raw);
 
 	            if (peelBanana(parsed.data) !== parsed.bananaPeel) {
-	                console.warn("%c[🍌 BananaGuard] Live tamper detected!", "color:red;font-size:20px");
+	                logger.warn("Live tamper detected!");
 	                localStorage.removeItem(SAVE_KEY);
 	                localStorage.removeItem(HONEYPOT_KEY);
 	                location.reload();
@@ -2948,15 +3009,15 @@ var app = (function () {
 	            }
 
 	        } catch (e) {
-	            console.error("[🍌 BananaGuard] LiveScan error:", e);
+	            logger.error("LiveScan error:", e);
 	        }
 	    }, 1500);
 	}
 
 	function bananaBanner() {
-	    console.log("%c 🍌 BananaGuard Activated", "color:yellow;font-size:26px;font-weight:bold;");
-	    console.log("%c[🛡️ BananaGuard] Status: Running...", "color:#ffcc00;font-size:16px");
-	    console.log("%cKeep your bananas safe from cheaters 😎", "color:#ffaa00;font-size:14px");
+	    logger.banana("BananaGuard Activated");
+	    logger.info("Status: Running...");
+	    logger.info("Keep your bananas safe from cheaters 😎");
 	}
 
 	function startBananaGuard() {
@@ -3004,8 +3065,6 @@ var app = (function () {
 	};
 
 	/* src\App.svelte generated by Svelte v4.2.20 */
-
-	const { console: console_1 } = globals;
 	const file = "src\\App.svelte";
 
 	function get_each_context(ctx, list, i) {
@@ -3020,7 +3079,7 @@ var app = (function () {
 		return child_ctx;
 	}
 
-	// (491:12) {:else}
+	// (489:12) {:else}
 	function create_else_block(ctx) {
 		let t;
 
@@ -3042,14 +3101,14 @@ var app = (function () {
 			block,
 			id: create_else_block.name,
 			type: "else",
-			source: "(491:12) {:else}",
+			source: "(489:12) {:else}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (489:12) {#if isUpgradeOpen}
+	// (487:12) {#if isUpgradeOpen}
 	function create_if_block_2(ctx) {
 		let t;
 
@@ -3071,14 +3130,14 @@ var app = (function () {
 			block,
 			id: create_if_block_2.name,
 			type: "if",
-			source: "(489:12) {#if isUpgradeOpen}",
+			source: "(487:12) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (515:8) {#each particles as p (p.id)}
+	// (513:8) {#each particles as p (p.id)}
 	function create_each_block_1(key_1, ctx) {
 		let span;
 		let html_tag;
@@ -3098,7 +3157,7 @@ var app = (function () {
 				set_style(span, "top", /*p*/ ctx[41].y + "px");
 				set_style(span, "transform", "rotate(" + /*p*/ ctx[41].rotation + "deg) scale(" + /*p*/ ctx[41].scale + ")");
 				set_style(span, "opacity", /*p*/ ctx[41].opacity);
-				add_location(span, file, 515, 12, 14744);
+				add_location(span, file, 513, 12, 15305);
 				this.first = span;
 			},
 			m: function mount(target, anchor) {
@@ -3137,14 +3196,14 @@ var app = (function () {
 			block,
 			id: create_each_block_1.name,
 			type: "each",
-			source: "(515:8) {#each particles as p (p.id)}",
+			source: "(513:8) {#each particles as p (p.id)}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (531:4) {#if isUpgradeOpen}
+	// (529:4) {#if isUpgradeOpen}
 	function create_if_block_1(ctx) {
 		let aside;
 		let div3;
@@ -3210,26 +3269,26 @@ var app = (function () {
 				span1 = element("span");
 				t10 = text("Total bananas: ");
 				t11 = text(t11_value);
-				add_location(h2, file, 534, 20, 15241);
+				add_location(h2, file, 532, 20, 15821);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 540, 24, 15474);
+				add_location(i, file, 538, 24, 16060);
 				attr_dev(button, "class", "upgrade-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 535, 20, 15279);
+				add_location(button, file, 533, 20, 15860);
 				attr_dev(div0, "class", "upgrade-header svelte-1pcwqjd");
-				add_location(div0, file, 533, 16, 15192);
-				add_location(p_1, file, 543, 16, 15571);
+				add_location(div0, file, 531, 16, 15771);
+				add_location(p_1, file, 541, 16, 16160);
 				attr_dev(div1, "class", "upgrades-container svelte-1pcwqjd");
-				add_location(div1, file, 544, 16, 15638);
+				add_location(div1, file, 542, 16, 16228);
 				attr_dev(span0, "class", "bperclick svelte-1pcwqjd");
-				add_location(span0, file, 561, 20, 16447);
-				add_location(span1, file, 564, 20, 16583);
+				add_location(span0, file, 559, 20, 17054);
+				add_location(span1, file, 562, 20, 17193);
 				attr_dev(div2, "class", "upgrade-footer svelte-1pcwqjd");
-				add_location(div2, file, 560, 16, 16398);
+				add_location(div2, file, 558, 16, 17004);
 				attr_dev(div3, "class", "upgrade-wrapper svelte-1pcwqjd");
-				add_location(div3, file, 532, 12, 15129);
+				add_location(div3, file, 530, 12, 15707);
 				attr_dev(aside, "class", "upgrades svelte-1pcwqjd");
-				add_location(aside, file, 531, 8, 15092);
+				add_location(aside, file, 529, 8, 15669);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3331,14 +3390,14 @@ var app = (function () {
 			block,
 			id: create_if_block_1.name,
 			type: "if",
-			source: "(531:4) {#if isUpgradeOpen}",
+			source: "(529:4) {#if isUpgradeOpen}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (546:20) {#each mergedUpgrades as upgrade}
+	// (544:20) {#each mergedUpgrades as upgrade}
 	function create_each_block(ctx) {
 		let button;
 		let t0_value = /*upgrade*/ ctx[38].name + "";
@@ -3364,7 +3423,7 @@ var app = (function () {
 				t0 = text(t0_value);
 				t1 = text(" (");
 				t2 = text(t2_value);
-				t3 = text(")\n                            ");
+				t3 = text(")\r\n                            ");
 				img = element("img");
 				t4 = space();
 				if (!src_url_equal(img.src, img_src_value = "./banana.png")) attr_dev(img, "src", img_src_value);
@@ -3374,10 +3433,10 @@ var app = (function () {
 				set_style(img, "height", "auto");
 				set_style(img, "vertical-align", "middle");
 				set_style(img, "margin-left", "5px");
-				add_location(img, file, 551, 28, 16012);
+				add_location(img, file, 549, 28, 16609);
 				button.disabled = button_disabled_value = /*bananas*/ ctx[7] < /*upgrade*/ ctx[38].cost;
 				attr_dev(button, "class", "svelte-1pcwqjd");
-				add_location(button, file, 546, 24, 15749);
+				add_location(button, file, 544, 24, 16341);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, button, anchor);
@@ -3416,14 +3475,14 @@ var app = (function () {
 			block,
 			id: create_each_block.name,
 			type: "each",
-			source: "(546:20) {#each mergedUpgrades as upgrade}",
+			source: "(544:20) {#each mergedUpgrades as upgrade}",
 			ctx
 		});
 
 		return block;
 	}
 
-	// (570:4) {#if isSettingsOpen}
+	// (568:4) {#if isSettingsOpen}
 	function create_if_block(ctx) {
 		let aside;
 		let div4;
@@ -3483,42 +3542,42 @@ var app = (function () {
 				input1 = element("input");
 				t9 = space();
 				span3 = element("span");
-				add_location(h2, file, 573, 20, 16888);
+				add_location(h2, file, 571, 20, 17507);
 				attr_dev(i, "class", "fa fa-xmark");
-				add_location(i, file, 579, 24, 17122);
+				add_location(i, file, 577, 24, 17747);
 				attr_dev(button, "class", "settings-close-btn svelte-1pcwqjd");
 				attr_dev(button, "aria-label", "Close");
-				add_location(button, file, 574, 20, 16926);
+				add_location(button, file, 572, 20, 17546);
 				attr_dev(div0, "class", "settings-header svelte-1pcwqjd");
-				add_location(div0, file, 572, 16, 16838);
-				add_location(span0, file, 585, 24, 17322);
+				add_location(div0, file, 570, 16, 17456);
+				add_location(span0, file, 583, 24, 17953);
 				attr_dev(input0, "type", "checkbox");
 				input0.checked = /*soundFX*/ ctx[10];
 				attr_dev(input0, "class", "svelte-1pcwqjd");
-				add_location(input0, file, 587, 28, 17419);
+				add_location(input0, file, 585, 28, 18052);
 				attr_dev(span1, "class", "slider svelte-1pcwqjd");
-				add_location(span1, file, 593, 28, 17702);
+				add_location(span1, file, 591, 28, 18341);
 				attr_dev(label0, "class", "toggle svelte-1pcwqjd");
-				add_location(label0, file, 586, 24, 17368);
+				add_location(label0, file, 584, 24, 18000);
 				attr_dev(div1, "class", "setting-item svelte-1pcwqjd");
-				add_location(div1, file, 584, 20, 17271);
-				add_location(span2, file, 598, 24, 17863);
+				add_location(div1, file, 582, 20, 17901);
+				add_location(span2, file, 596, 24, 18507);
 				attr_dev(input1, "type", "checkbox");
 				input1.checked = /*music*/ ctx[0];
 				attr_dev(input1, "class", "svelte-1pcwqjd");
-				add_location(input1, file, 600, 28, 17957);
+				add_location(input1, file, 598, 28, 18603);
 				attr_dev(span3, "class", "slider svelte-1pcwqjd");
-				add_location(span3, file, 605, 28, 18200);
+				add_location(span3, file, 603, 28, 18851);
 				attr_dev(label1, "class", "toggle svelte-1pcwqjd");
-				add_location(label1, file, 599, 24, 17906);
+				add_location(label1, file, 597, 24, 18551);
 				attr_dev(div2, "class", "setting-item svelte-1pcwqjd");
-				add_location(div2, file, 597, 20, 17812);
+				add_location(div2, file, 595, 20, 18455);
 				attr_dev(div3, "class", "settings-options svelte-1pcwqjd");
-				add_location(div3, file, 583, 16, 17220);
+				add_location(div3, file, 581, 16, 17849);
 				attr_dev(div4, "class", "settings-wrapper svelte-1pcwqjd");
-				add_location(div4, file, 571, 12, 16774);
+				add_location(div4, file, 569, 12, 17391);
 				attr_dev(aside, "class", "settings svelte-1pcwqjd");
-				add_location(aside, file, 570, 8, 16737);
+				add_location(aside, file, 568, 8, 17353);
 			},
 			m: function mount(target, anchor) {
 				insert_dev(target, aside, anchor);
@@ -3602,7 +3661,7 @@ var app = (function () {
 			block,
 			id: create_if_block.name,
 			type: "if",
-			source: "(570:4) {#if isSettingsOpen}",
+			source: "(568:4) {#if isSettingsOpen}",
 			ctx
 		});
 
@@ -3746,18 +3805,18 @@ var app = (function () {
 				set_style(img0, "height", "auto");
 				set_style(img0, "vertical-align", "middle");
 				set_style(img0, "margin-right", "5px");
-				add_location(img0, file, 451, 12, 12531);
+				add_location(img0, file, 449, 12, 13028);
 				attr_dev(span0, "class", "version svelte-1pcwqjd");
-				add_location(span0, file, 457, 12, 12748);
+				add_location(span0, file, 455, 12, 13251);
 				attr_dev(h1, "class", "title svelte-1pcwqjd");
-				add_location(h1, file, 450, 8, 12500);
+				add_location(h1, file, 448, 8, 12996);
 				attr_dev(i0, "class", "fa fa-gear");
-				add_location(i0, file, 460, 12, 12890);
+				add_location(i0, file, 458, 12, 13396);
 				attr_dev(button0, "class", "menu svelte-1pcwqjd");
 				attr_dev(button0, "aria-label", "Settings");
-				add_location(button0, file, 459, 8, 12810);
+				add_location(button0, file, 457, 8, 13315);
 				attr_dev(div0, "class", "header svelte-1pcwqjd");
-				add_location(div0, file, 449, 4, 12471);
+				add_location(div0, file, 447, 4, 12966);
 				if (!src_url_equal(img1.src, img1_src_value = "./banana.png")) attr_dev(img1, "src", img1_src_value);
 				attr_dev(img1, "alt", "🍌");
 				attr_dev(img1, "draggable", "false");
@@ -3765,40 +3824,40 @@ var app = (function () {
 				set_style(img1, "height", "auto");
 				set_style(img1, "vertical-align", "middle");
 				set_style(img1, "margin-right", "5px");
-				add_location(img1, file, 467, 12, 13114);
+				add_location(img1, file, 465, 12, 13627);
 				attr_dev(span1, "class", "score-count svelte-1pcwqjd");
 				toggle_class(span1, "animate", /*animateLabel*/ ctx[5]);
-				add_location(span1, file, 466, 8, 13046);
+				add_location(span1, file, 464, 8, 13558);
 				if (!src_url_equal(img2.src, img2_src_value = "./bananaman.png")) attr_dev(img2, "src", img2_src_value);
 				attr_dev(img2, "alt", "🍌");
 				attr_dev(img2, "draggable", "false");
 				attr_dev(img2, "class", "svelte-1pcwqjd");
-				add_location(img2, file, 484, 12, 13743);
+				add_location(img2, file, 482, 12, 14273);
 				attr_dev(div1, "class", "banana-center svelte-1pcwqjd");
-				add_location(div1, file, 479, 8, 13609);
+				add_location(div1, file, 477, 8, 14134);
 				attr_dev(button1, "class", "upgrade-button svelte-1pcwqjd");
-				add_location(button1, file, 487, 8, 13824);
+				add_location(button1, file, 485, 8, 14357);
 				attr_dev(spna0, "class", "multipliers");
-				add_location(spna0, file, 495, 12, 14073);
+				add_location(spna0, file, 493, 12, 14614);
 				attr_dev(spna1, "class", "autoClickPower");
-				add_location(spna1, file, 498, 12, 14187);
+				add_location(spna1, file, 496, 12, 14731);
 				attr_dev(spna2, "class", "clickBuff");
-				add_location(spna2, file, 501, 12, 14306);
+				add_location(spna2, file, 499, 12, 14853);
 				attr_dev(div2, "class", "buff-container svelte-1pcwqjd");
-				add_location(div2, file, 494, 8, 14032);
+				add_location(div2, file, 492, 8, 14572);
 				attr_dev(i1, "class", "fa-brands fa-github");
-				add_location(i1, file, 508, 32, 14568);
+				add_location(i1, file, 506, 32, 15122);
 				attr_dev(a, "href", "https://github.com/cosmic-fi/BananaClicker");
 				attr_dev(a, "class", "githublink svelte-1pcwqjd");
 				attr_dev(a, "target", "_blank");
 				attr_dev(a, "aria-label", "Github");
-				add_location(a, file, 504, 8, 14412);
+				add_location(a, file, 502, 8, 14962);
 				attr_dev(div3, "class", "game-area svelte-1pcwqjd");
-				add_location(div3, file, 465, 4, 13014);
+				add_location(div3, file, 463, 4, 13525);
 				attr_dev(div4, "class", "particle-container svelte-1pcwqjd");
-				add_location(div4, file, 513, 4, 14661);
+				add_location(div4, file, 511, 4, 15220);
 				attr_dev(main, "class", "svelte-1pcwqjd");
-				add_location(main, file, 448, 0, 12460);
+				add_location(main, file, 446, 0, 12954);
 			},
 			l: function claim(nodes) {
 				throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -4137,7 +4196,8 @@ var app = (function () {
 		//*=======***=======
 		startBananaGuard();
 
-		console.log(`%c Running Banana Version: ${version}`, "color: yellow;font-size:13px", "(Latest Client)");
+		logger.custom(`Running Banana Version: ${version}`, "color: yellow; font-size: 13px; font-weight: bold;");
+		logger.info("(Latest Client)");
 
 		//*=======***=======
 		let particleId = 0;
@@ -4415,7 +4475,7 @@ var app = (function () {
 		const writable_props = [];
 
 		Object.keys($$props).forEach(key => {
-			if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console_1.warn(`<App> was created with unknown prop '${key}'`);
+			if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<App> was created with unknown prop '${key}'`);
 		});
 
 		function div1_binding($$value) {
@@ -4434,6 +4494,7 @@ var app = (function () {
 			playerData,
 			upgradesList,
 			startBananaGuard,
+			logger,
 			pkg,
 			version,
 			particleId,

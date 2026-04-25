@@ -2,17 +2,15 @@
     import { slide } from "svelte/transition";
     import { playerData, upgradesList } from "./stores/playerStore";
     import { startBananaGuard } from "./bananaGuard";
+    import logger from "./utils/logger";
     import pkg from "../package.json";
 
     const version = pkg.version;
 
     //*=======***=======
     startBananaGuard();
-    console.log(
-        `%c Running Banana Version: ${version}`,
-        "color: yellow;font-size:13px",
-        "(Latest Client)",
-    );
+    logger.custom(`Running Banana Version: ${version}`, "color: yellow; font-size: 13px; font-weight: bold;");
+    logger.info("(Latest Client)");
     //*=======***=======
 
     let particleId = 0;

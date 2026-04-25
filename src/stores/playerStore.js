@@ -1,5 +1,7 @@
 import { writable } from "svelte/store";
 import SHA256 from "crypto-js/sha256";
+import logger from "../utils/logger";
+
 
 // ==========================
 // 🍌 Upgrade List
@@ -152,20 +154,14 @@ function BananaGuardLoad() {
 
     // Check for missing fields
     if (!parsed.data || !parsed.bananaPeel) {
-      console.warn(
-        "%c[🍌 BananaGuard] Missing fields in saved data. Resetting save!",
-        "color:red;font-size:16px",
-      );
+      logger.warn("Missing fields in saved data. Resetting save!");
       return defaultData;
     }
 
     // Validate integrity
     const expected = peelBanana(parsed.data);
     if (expected !== parsed.bananaPeel) {
-      console.warn(
-        "%c[🍌 BananaGuard] Tampering detected. Resetting save!",
-        "color:red;font-size:16px",
-      );
+      logger.warn("Tampering detected. Resetting save!");
       return defaultData;
     }
 
@@ -185,22 +181,16 @@ function BananaGuardLoad() {
     const hasAllFields = requiredFields.every((field) => field in parsed.data);
 
     if (!hasAllFields) {
-      console.warn(
-        "%c[🍌 BananaGuard] Saved data is missing required fields. Resetting save!",
-        "color:red;font-size:16px",
-      );
+      logger.warn("Saved data is missing required fields. Resetting save!");
       return defaultData;
     }
 
     // Verified
-    console.log(
-      "%c[🛡️ BananaGuard] Save integrity verified.",
-      "color:#7CFC00;font-size:14px",
-    );
+    logger.success("Save integrity verified.");
 
     return parsed.data;
   } catch (err) {
-    console.error("BananaGuard failed to load:", err);
+    logger.error("BananaGuard failed to load:", err);
     return defaultData;
   }
 }
@@ -226,10 +216,7 @@ function BananaGuardSave(data) {
     const hasAllFields = requiredFields.every((field) => field in data);
 
     if (!hasAllFields) {
-      console.warn(
-        "%c[🍌 BananaGuard] Data is missing required fields. Not saving!",
-        "color:red;font-size:16px",
-      );
+      logger.warn("Data is missing required fields. Not saving!");
       return;
     }
 
@@ -240,7 +227,7 @@ function BananaGuardSave(data) {
 
     localStorage.setItem("bananaClicker", JSON.stringify(sealedBanana));
   } catch (err) {
-    console.error("BananaGuard failed to save:", err);
+    logger.error("BananaGuard failed to save:", err);
   }
 }
 
